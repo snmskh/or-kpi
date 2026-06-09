@@ -107,10 +107,18 @@ select:focus,input[type="month"]:focus{border-color:#fff;box-shadow:0 0 0 3px rg
   display:flex;align-items:center;justify-content:space-between;
   cursor:pointer;user-select:none;transition:background .15s;
   background:var(--surface2);
-  min-height:48px; /* touch target */
+  min-height:48px;
 }
 .dim-hdr:hover{background:var(--surface3);}
 .dim-hdr:active{background:var(--surface3);}
+/* สีพื้น dim header แต่ละมิติ */
+.dim-section[data-dim="d1"] .dim-hdr{border-left:5px solid #0284c7;background:#f0f7ff;}
+.dim-section[data-dim="d2"] .dim-hdr{border-left:5px solid #0e7c5a;background:#f0faf5;}
+.dim-section[data-dim="d3"] .dim-hdr{border-left:5px solid #d97706;background:#fffbf0;}
+.dim-section[data-dim="d4"] .dim-hdr{border-left:5px solid #7c3aed;background:#faf5ff;}
+.dim-section[data-dim="d5"] .dim-hdr{border-left:5px solid #dc2626;background:#fff5f5;}
+.dim-section[data-dim="d6"] .dim-hdr{border-left:5px solid #ea580c;background:#fff8f5;}
+.dim-section[data-dim="dg"] .dim-hdr{border-left:5px solid #475569;background:#f8fafc;}
 .dim-hdr-left{display:flex;align-items:center;gap:8px;}
 .dim-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 .dim-name{font-size:14px;font-weight:700;color:var(--text);letter-spacing:.02em;}
@@ -806,11 +814,9 @@ td.owner{padding:7px 5px 7px 3px;}
 <div class="page" id="page-report">
   <div class="rpt-ctrl">
     <span class="rc-lbl">ปี:</span>
-    <select id="rpt-year" onchange="renderReport()">
-      <option value="2568">2568</option><option value="2567">2567</option>
-    </select>
+    <select id="rpt-year" onchange="renderReport()"></select>
     <span class="rc-lbl">ตัวชี้วัด:</span>
-    <select id="rpt-kpi" onchange="renderReport()" style="max-width:300px;"></select>
+    <select id="rpt-kpi" onchange="renderReport()" style="max-width:340px;font-size:14px;"></select>
   </div>
 
   <div class="sum-grid" id="rpt-sum"></div>
@@ -863,12 +869,12 @@ td.owner{padding:7px 5px 7px 3px;}
 
   <div class="fy-ctrl no-print">
     <span class="rc-lbl">ปีงบประมาณ:</span>
-    <select id="fy-year" onchange="renderFiscal()">
-      <option value="2568">2568 (ต.ค.67 – ก.ย.68)</option>
-      <option value="2567">2567 (ต.ค.66 – ก.ย.67)</option>
-    </select>
-    <button class="btn btn-ghost" onclick="window.print()" style="margin-left:auto">
-      🖨️ พิมพ์ / บันทึก PDF
+    <select id="fy-year" onchange="renderFiscal()"></select>
+    <button class="btn btn-ghost" onclick="exportFiscalExcel()">
+      📊 Export Excel
+    </button>
+    <button class="btn btn-ghost" onclick="window.print()" style="margin-left:4px">
+      🖨️ พิมพ์ / PDF
     </button>
   </div>
 
@@ -1190,6 +1196,7 @@ function buildForm(){
     const filled=dim.items.filter(i=>data[i.id]?.value).length;
     const sec=document.createElement('div');
     sec.className='dim-section';
+    sec.setAttribute('data-dim', dim.id);
     sec.innerHTML=`
       <div class="dim-hdr" onclick="toggleDim(this)">
         <div class="dim-hdr-left">
@@ -1226,8 +1233,8 @@ function buildForm(){
       if(isCrit) tr.className='critical-row';
       tr.innerHTML=`
         <td class="n">${String(item.id).padStart(2,'0')}</td>
-        <td class="nm">${item.name} ${critBadge}${item.unit?`<small>${item.unit}</small>`:''}</td>
-        <td class="tgt">${item.target}</td>
+        <td class="nm">${item.name} ${critBadge}</td>
+        <td class="tgt">${item.target}${item.unit?' <span style="font-size:11px;color:var(--text2);font-weight:500">${item.unit}</span>':''}</td>
         <td class="inp">
           <input type="text" class="ki ${d.value?'hv':''}" value="${d.value}" placeholder="—"
             data-id="${item.id}" data-dim="${dim.id}"
@@ -1505,15 +1512,16 @@ function renderReport(){
 
   // trend table — all KPIs × 12 months
   const tbl=document.getElementById('trend-tbl');
-  let hdr=`<thead><tr><th>ตัวชี้วัด</th>`;
+  let hdr=`<thead><tr><th style="min-width:260px;text-align:left;padding-left:18px">ตัวชี้วัด</th><th style="width:100px">เป้าหมาย</th>`;
   months12.forEach(mk=>hdr+=`<th>${getMonthLabel(mk)}</th>`);
   hdr+=`</tr></thead>`;
 
   let body=`<tbody>`;
   DIMS.forEach(dim=>{
-    body+=`<tr><td colspan="${13}" style="padding:9px 18px;background:var(--surface2);font-size:11px;font-weight:700;color:${dim.color};letter-spacing:.04em;border-bottom:1px solid var(--border)">${dim.name}</td></tr>`;
+    body+=`<tr><td colspan="${14}" style="padding:9px 18px;background:${dim.color}22;font-size:12px;font-weight:700;color:${dim.color};letter-spacing:.04em;border-bottom:1px solid var(--border);border-left:4px solid ${dim.color}">${dim.name}</td></tr>`;
     dim.items.forEach(item=>{
-      body+=`<tr><td><span class="nm-cell">${String(item.id).padStart(2,'0')}. ${item.name}<small>${item.target} ${item.unit}</small></span></td>`;
+      body+=`<tr><td style="padding:10px 12px 10px 18px"><span class="nm-cell">${String(item.id).padStart(2,'0')}. ${item.name}</span></td>`;
+      body+=`<td style="text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text2);font-weight:600">${item.target} ${item.unit}</td>`;
       let prev=null;
       months12.forEach(mk=>{
         const raw=md(mk)[item.id]?.value;
@@ -1568,21 +1576,13 @@ function checkTarget(val, targetStr){
 }
 
 function render3MonthCompare(year){
-  // find the 3 most-recent months that have any data, within the selected year
-  const months12=[];
-  for(let m=12;m>=1;m--) months12.push(`${year}-${String(m).padStart(2,'0')}`);
-
-  // pick last 3 months with data OR just last 3 calendar months of year
-  const last3 = [];
-  for(const mk of months12){
-    const hasData = ALL_ITEMS.some(i=>{const v=md(mk)[i.id]?.value; return v!==undefined&&v!=='';});
-    if(hasData) last3.push(mk);
-    if(last3.length===3) break;
-  }
-  // if not enough months with data, pad with last 3 calendar months
-  const cal3 = months12.slice(0,3);
-  while(last3.length<3) last3.push(cal3[last3.length]);
-  last3.reverse(); // oldest → newest
+  // ใช้เดือนปัจจุบันเป็นฐาน (ขวาสุด) เสมอ
+  const now = new Date();
+  const curMK = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const m2 = curMK;
+  const m1 = getPrevMonthKey(curMK, 1);
+  const m0 = getPrevMonthKey(curMK, 2);
+  const last3 = [m0, m1, m2]; // oldest → newest
 
   // update subtitle
   document.getElementById('cmp-period-lbl').textContent=
@@ -1719,29 +1719,27 @@ function renderFiscal(){
 
   // ---- main table ----
   const MO_LABELS = months.map(mk=>getMonthLabel(mk));
-  const TOTAL_COLS = 3 + 12 + 3 + 1; // #, name, target, 12mo, avg, result, filled, owner
   let hdr=`<thead><tr>
-    <th>#</th>
-    <th style="min-width:220px">ตัวชี้วัด</th>
-    <th style="width:70px">เป้าหมาย</th>
-    ${MO_LABELS.map(l=>`<th style="width:62px">${l}</th>`).join('')}
-    <th style="width:70px;background:#065f46;color:#fff">ค่าเฉลี่ย</th>
+    <th style="width:40px">#</th>
+    <th style="min-width:320px;text-align:left">ตัวชี้วัด</th>
+    <th style="width:90px">เป้าหมาย</th>
+    ${MO_LABELS.map(l=>`<th style="width:65px">${l}</th>`).join('')}
+    <th style="width:75px;background:#065f46;color:#fff">ค่าเฉลี่ย</th>
     <th style="width:56px;background:#065f46;color:#fff">ผล</th>
-    <th style="width:56px">กรอก</th>
-    <th style="width:130px;background:#78350f;color:#fff">ผู้รับผิดชอบ</th>
+    <th style="width:60px">กรอก</th>
+    <th style="width:140px;background:#78350f;color:#fff">ผู้รับผิดชอบ</th>
   </tr></thead>`;
 
   let body=`<tbody>`;
   DIMS.forEach(dim=>{
-    body+=`<tr class="fy-dim-row"><td colspan="19" style="color:${dim.color}">${dim.name}</td></tr>`;
+    body+=`<tr class="fy-dim-row"><td colspan="19" style="color:${dim.color};background:${dim.color}18;border-left:5px solid ${dim.color}">${dim.name}</td></tr>`;
     dim.items.forEach(item=>{
       const s=itemStats[item.id];
       const pass=s.avg!==null?passCheck(s.avg,item.target):'na';
-      const passIcon=pass==='pass'?'<span style="color:#22c55e">✔</span>':pass==='fail'?'<span style="color:#ef4444">✘</span>':'<span style="color:#64748b">—</span>';
+      const passIcon=pass==='pass'?'<span style="color:#22c55e;font-size:16px">✔</span>':pass==='fail'?'<span style="color:#ef4444;font-size:16px">✘</span>':'<span style="color:#64748b">—</span>';
       const avgCls=pass==='pass'?'ok':pass==='fail'?'ng':'na';
       const avgDisp=s.avg!==null?s.avg.toFixed(1):'—';
 
-      // get owner from latest month that has data
       let ownerVal='';
       if(dim.id==='dg'){
         for(let mi=months.length-1;mi>=0;mi--){
@@ -1750,11 +1748,11 @@ function renderFiscal(){
         }
       }
 
-      const critMark = item.critical ? `<span style="font-size:11px">🚨</span> ` : '';
+      const critMark = item.critical ? `<span style="font-size:12px">🚨</span> ` : '';
       body+=`<tr${item.critical?' class="critical-row"':''}>
-        <td>${String(item.id).padStart(2,'0')}</td>
-        <td style="text-align:left;font-size:11px;font-weight:500">${critMark}${item.name}</td>
-        <td style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace">${item.target}</td>`;
+        <td style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text3);padding-left:14px">${String(item.id).padStart(2,'0')}</td>
+        <td style="text-align:left;font-size:14px;font-weight:500;padding:10px 12px;white-space:normal;word-break:keep-all">${critMark}${item.name} <span style="font-size:11px;color:var(--text3)">${item.unit}</span></td>
+        <td style="font-size:13px;color:var(--text2);font-family:'IBM Plex Mono',monospace;text-align:center;font-weight:600">${item.target}</td>`;
 
       months.forEach(mk=>{
         const v=getRaw(mk,item.id);
@@ -1765,14 +1763,83 @@ function renderFiscal(){
       });
 
       body+=`<td style="background:#e6f4ef"><span class="fy-avg ${avgCls}">${avgDisp}</span></td>
-        <td style="background:#e6f4ef" class="fy-pass-icon">${passIcon}</td>
+        <td style="background:#e6f4ef;text-align:center" class="fy-pass-icon">${passIcon}</td>
         <td><span class="fy-filled">${s.filled}/12</span></td>
-        <td style="background:#fffbeb;font-size:11px;color:#92400e;font-weight:${ownerVal?'600':'400'}">${ownerVal||'<span style="color:#d1d5db">—</span>'}</td>
+        <td style="background:#fffbeb;font-size:13px;color:#92400e;font-weight:${ownerVal?'600':'400'}">${ownerVal||'<span style="color:#d1d5db">—</span>'}</td>
       </tr>`;
     });
   });
   body+=`</tbody>`;
   document.getElementById('fy-tbl').innerHTML=hdr+body;
+}
+
+// =====================================================
+// POPULATE YEAR DROPDOWNS (dynamic)
+// =====================================================
+function populateYearDropdowns(){
+  const now = new Date();
+  const curBE = now.getFullYear() + 543;
+
+  // Report year
+  const rptY = document.getElementById('rpt-year');
+  if(rptY){
+    rptY.innerHTML='';
+    for(let y=curBE; y>=curBE-3; y--){
+      const o=document.createElement('option');
+      o.value=y; o.textContent=y;
+      if(y===curBE) o.selected=true;
+      rptY.appendChild(o);
+    }
+  }
+
+  // Fiscal year
+  const fyY = document.getElementById('fy-year');
+  if(fyY){
+    fyY.innerHTML='';
+    for(let y=curBE; y>=curBE-3; y--){
+      const o=document.createElement('option');
+      o.value=y;
+      o.textContent=`${y} (ต.ค.${y-1} – ก.ย.${y})`;
+      if(y===curBE) o.selected=true;
+      fyY.appendChild(o);
+    }
+  }
+}
+
+// =====================================================
+// EXPORT EXCEL
+// =====================================================
+function exportFiscalExcel(){
+  const fyBE = parseInt(document.getElementById('fy-year').value);
+  const months = getFiscalMonthKeys(fyBE);
+  const MO_LABELS = months.map(mk=>getMonthLabel(mk));
+
+  // สร้าง CSV
+  let csv = '\uFEFF'; // BOM สำหรับ Excel ภาษาไทย
+  csv += `ปีงบประมาณ ${fyBE},,,\n`;
+  csv += `มิติ,#,ตัวชี้วัด,เป้าหมาย,${MO_LABELS.join(',')},ค่าเฉลี่ย,ผล,กรอก\n`;
+
+  const getRaw=(mk,id)=>{ const v=md(mk)[id]?.value; return (v!==undefined&&v!=='')?parseFloat(v):null; };
+
+  DIMS.forEach(dim=>{
+    dim.items.forEach(item=>{
+      const vals = months.map(mk=>{ const v=getRaw(mk,item.id); return v!==null?v:''; });
+      const nonNull = vals.filter(v=>v!=='');
+      const avg = nonNull.length ? (nonNull.reduce((a,b)=>a+b,0)/nonNull.length).toFixed(1) : '';
+      const pass = avg!==''? (checkTarget(parseFloat(avg),item.target)==='pass'?'✔':'✘') : '';
+      csv += `"${dim.name}","${String(item.id).padStart(2,'0')}","${item.name}","${item.target} ${item.unit}",${vals.join(',')},${avg},${pass},${nonNull.length}/12\n`;
+    });
+  });
+
+  // Download
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `OR-KPI-ปีงบ${fyBE}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📊 Export Excel สำเร็จ');
 }
 
 // =====================================================
@@ -1857,23 +1924,33 @@ window.onload = function(){
 
   load();
   populateKpiSel();
+  populateYearDropdowns();
   currentMonth = document.getElementById('month-sel-y').value + '-' + document.getElementById('month-sel-m').value;
 
-  // ใช้ JS จัดการแสดง/ซ่อน ไม่พึ่ง CSS media query
   const isDesktop = window.innerWidth >= 861;
+
+  // แสดง/ซ่อนด้วย JS
+  const kpiForm = document.getElementById('kpi-form');
+  const dimPicker = document.getElementById('dim-picker');
+  const dimFormWrap = document.getElementById('dim-form-wrap');
+  const entryFooter = document.getElementById('entry-footer');
+
   if(isDesktop){
-    document.getElementById('kpi-form').style.display = 'block';
-    document.getElementById('dim-picker').style.display = 'none';
-    document.getElementById('dim-form-wrap').style.display = 'none';
-    document.getElementById('entry-footer').style.display = 'flex';
+    kpiForm.style.cssText = 'display:block!important';
+    dimPicker.style.cssText = 'display:none!important';
+    dimFormWrap.style.cssText = 'display:none!important';
+    entryFooter.style.cssText = 'display:flex!important';
   } else {
-    document.getElementById('kpi-form').style.display = 'none';
-    document.getElementById('dim-picker').style.display = 'block';
-    document.getElementById('dim-form-wrap').style.display = 'none';
-    document.getElementById('entry-footer').style.display = 'flex';
+    kpiForm.style.cssText = 'display:none!important';
+    dimPicker.style.cssText = 'display:block!important';
+    dimFormWrap.style.cssText = 'display:none!important';
+    entryFooter.style.cssText = 'display:flex!important';
   }
 
+  // build form แล้ว verify
   buildForm();
+  console.log('buildForm done, kpi-form children:', kpiForm.children.length);
+
   buildDimPicker();
   updateMonthDisplay();
   setSyncStatus('idle');
@@ -1881,8 +1958,16 @@ window.onload = function(){
   // โหลดจาก Sheets อัตโนมัติ
   setSyncStatus('saving');
   pullFromSheets(currentMonth).then(ok => {
-    if(ok){ buildForm(); buildDimPicker(); setSyncStatus('ok'); showToast('☁️ โหลดข้อมูลล่าสุดจาก Google Sheets แล้ว'); }
-    else { setSyncStatus('idle'); }
+    if(ok){
+      buildForm();
+      // force show อีกครั้งหลัง Sheets load
+      if(isDesktop) kpiForm.style.cssText = 'display:block!important';
+      buildDimPicker();
+      setSyncStatus('ok');
+      showToast('☁️ โหลดข้อมูลล่าสุดจาก Google Sheets แล้ว');
+    } else {
+      setSyncStatus('idle');
+    }
   });
 
 };
