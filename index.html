@@ -1858,10 +1858,24 @@ window.onload = function(){
   load();
   populateKpiSel();
   currentMonth = document.getElementById('month-sel-y').value + '-' + document.getElementById('month-sel-m').value;
+
+  // ใช้ JS จัดการแสดง/ซ่อน ไม่พึ่ง CSS media query
+  const isDesktop = window.innerWidth >= 861;
+  if(isDesktop){
+    document.getElementById('kpi-form').style.display = 'block';
+    document.getElementById('dim-picker').style.display = 'none';
+    document.getElementById('dim-form-wrap').style.display = 'none';
+    document.getElementById('entry-footer').style.display = 'flex';
+  } else {
+    document.getElementById('kpi-form').style.display = 'none';
+    document.getElementById('dim-picker').style.display = 'block';
+    document.getElementById('dim-form-wrap').style.display = 'none';
+    document.getElementById('entry-footer').style.display = 'flex';
+  }
+
   buildForm();
   buildDimPicker();
   updateMonthDisplay();
-  document.getElementById('dim-form-wrap').style.display = 'none';
   setSyncStatus('idle');
 
   // โหลดจาก Sheets อัตโนมัติ
