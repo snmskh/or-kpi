@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#0e7c5a">
+<title>ตัวชี้วัด Nursing Outcome · ห้องผ่าตัด</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  /* === GREEN-WHITE OFFICIAL THEME === */
+  --bg:#f0f7f4;
+  --surface:#ffffff;
+  --surface2:#e8f5f0;
+  --surface3:#d1ede4;
+  --border:#b8ddd0;
+  --border2:#8fcab6;
+  --accent:#0e7c5a;       /* เขียวเข้ม */
+  --accent2:#16a374;      /* เขียวกลาง */
+  --accent3:#d97706;      /* เหลืองส้ม (warning) */
+  --accent4:#dc2626;      /* แดง (fail) */
+  --accent-light:#e0f5ee; /* เขียวอ่อนมาก */
+  --text:#0f2d24;         /* เขียวเข้มมาก ≈ ดำ */
+  --text2:#2d6b55;        /* เขียวกลาง */
+  --text3:#6a9e8a;        /* เขียวอ่อน */
+  --hdr-bg:#0e7c5a;       /* header เขียวเข้ม */
+  --hdr-text:#ffffff;
+  --d1:#0284c7;--d2:#0e7c5a;--d3:#d97706;--d4:#7c3aed;--d5:#dc2626;--d6:#ea580c;--dg:#475569;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.hdr{
+  background:var(--hdr-bg);
+  border-bottom:none;
+  box-shadow:0 2px 12px rgba(14,124,90,.25);
+  padding:0 28px;display:flex;align-items:center;justify-content:space-between;
+  height:62px;position:sticky;top:0;z-index:200;gap:12px;flex-wrap:wrap;
+}
+.hdr-left{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.logo{
+  width:38px;height:38px;
+  background:rgba(255,255,255,.2);
+  border:2px solid rgba(255,255,255,.4);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;font-family:'IBM Plex Mono',monospace;flex-shrink:0;
+}
+.hdr-title{font-size:14px;font-weight:700;line-height:1.25;color:#fff;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.7);margin-top:1px;}
+.nav{display:flex;gap:4px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:4px;}
+.nav-btn{
+  padding:6px 15px;border-radius:7px;border:none;
+  background:transparent;color:rgba(255,255,255,.8);
+  font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.nav-btn:hover{background:rgba(255,255,255,.18);color:#fff;}
+.nav-btn.active{background:#fff;color:var(--accent);font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+@media(max-width:400px){
+  .nav-label{display:none;}
+  .nav-btn{padding:7px 10px;font-size:16px;}
+}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.hdr-right span{color:rgba(255,255,255,.7);font-size:11px;}
+select,input[type="month"]{
+  background:#fff;
+  border:1.5px solid rgba(255,255,255,.6);
+  border-radius:7px;
+  color:#0f2d24;
+  padding:6px 10px;font-size:12px;
+  font-family:'Sarabun',sans-serif;outline:none;
+  font-weight:600;
+}
+select option{background:#fff;color:#0f2d24;}
+select:focus,input[type="month"]:focus{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.3);}
+
+/* MAIN */
+.main{max-width:1320px;margin:0 auto;padding:24px 22px;}
+.page{display:none;}.page.active{display:block;}
+
+/* SECTION CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+
+/* PROGRESS BAR */
+.prog-bar-wrap{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+  border-radius:12px;padding:16px 20px;margin-bottom:18px;
+  display:flex;align-items:center;gap:16px;
+  box-shadow:0 3px 14px rgba(14,124,90,.25);
+}
+.prog-info{flex:1;}
+.prog-title{font-size:13px;font-weight:600;margin-bottom:6px;color:#fff;}
+.prog-bar{height:7px;background:rgba(255,255,255,.25);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:#fff;border-radius:4px;transition:width .5s ease;}
+.prog-stat{font-size:12px;color:rgba(255,255,255,.8);margin-top:5px;}
+.prog-num{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#fff;flex-shrink:0;}
+
+/* DIM SECTION */
+.dim-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.dim-hdr{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;transition:background .15s;
+  background:var(--surface2);
+  min-height:48px; /* touch target */
+}
+.dim-hdr:hover{background:var(--surface3);}
+.dim-hdr:active{background:var(--surface3);}
+.dim-hdr-left{display:flex;align-items:center;gap:8px;}
+.dim-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.dim-name{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.dim-count{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;background:var(--accent-light);padding:2px 8px;border-radius:10px;}
+.dim-chevron{font-size:11px;color:var(--text3);transition:transform .2s;}
+.dim-hdr.collapsed .dim-chevron{transform:rotate(-90deg);}
+.dim-body.hidden{display:none;}
+
+/* TABLE */
+.kpi-tbl{width:100%;border-collapse:collapse;}
+.kpi-tbl th{padding:9px 14px 9px 18px;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2);border-bottom:1px solid var(--border);}
+.kpi-tbl th:first-child{width:42px;}
+.kpi-tbl th.th-tgt{width:110px;}
+.kpi-tbl th.th-val{width:120px;text-align:right;}
+.kpi-tbl th.th-note{width:200px;}
+.kpi-tbl td{padding:0;border-bottom:1px solid var(--border);vertical-align:middle;}
+.kpi-tbl tr:last-child td{border-bottom:none;}
+.kpi-tbl tr:hover td{background:var(--accent-light);}
+td.n{padding:12px 8px 12px 18px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);}
+td.nm{padding:12px 12px;font-size:13px;font-weight:500;color:var(--text);}
+td.nm small{display:block;font-size:10px;color:var(--text3);font-weight:400;margin-top:1px;}
+td.tgt{padding:12px 12px;font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;text-align:center;font-weight:600;}
+td.inp{padding:7px 5px;text-align:right;}
+td.nte{padding:7px 5px 7px 3px;}
+.ki{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;
+  font-family:'Sarabun',sans-serif;outline:none;transition:all .2s;text-align:right;
+}
+.ki:focus{border-color:var(--accent2);background:#fff;box-shadow:0 0 0 3px rgba(22,163,116,.12);}
+.ki.hv{border-color:var(--accent2);color:var(--accent);background:#fff;font-weight:600;}
+.kn{
+  width:100%;background:transparent;border:1.5px solid transparent;
+  border-radius:7px;color:var(--text2);padding:7px 10px;font-size:11px;
+  font-family:'Sarabun',sans-serif;outline:none;resize:none;height:36px;transition:all .2s;
+}
+.kn:focus{background:var(--surface2);border-color:var(--border2);height:64px;}
+.kn::placeholder{color:var(--text3);font-size:11px;}
+
+/* FOOTER */
+.footer{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;margin-top:6px;
+  box-shadow:0 1px 4px rgba(14,124,90,.06);
+}
+.footer-info{font-size:13px;color:var(--text2);}
+.footer-info strong{color:var(--text);}
+.fa{display:flex;gap:7px;}
+.btn{padding:9px 18px;border-radius:8px;border:none;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.btn-ghost{background:var(--surface2);border:1.5px solid var(--border2);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.btn-success{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 3px 12px rgba(14,124,90,.3);}
+.btn-success:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(14,124,90,.4);}
+
+/* ====== REPORT ====== */
+.rpt-ctrl{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.rc-lbl{font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+/* selects/inputs ใน page content (ไม่ใช่ header) */
+.main select,.main input[type="month"]{
+  background:var(--surface);border:1.5px solid var(--border2);
+  color:var(--text);font-weight:500;
+}
+.main select option{background:#fff;color:#0f2d24;}
+.main select:focus,.main input[type="month"]:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,124,90,.12);
+}
+
+.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.sum-emo{font-size:20px;margin-bottom:5px;}
+.sum-val{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:2px;}
+.sum-lbl{font-size:11px;color:var(--text3);}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.chart-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:14px;}
+.chart-wrap{position:relative;height:210px;}
+
+.trend-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.trend-hdr{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+.trend-ttl{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+.trend-scroll{overflow-x:auto;}
+.trend-tbl{width:100%;border-collapse:collapse;min-width:900px;}
+.trend-tbl th{padding:8px 12px;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+.trend-tbl th:first-child{text-align:left;padding-left:18px;min-width:260px;}
+.trend-tbl td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;text-align:center;vertical-align:middle;}
+.trend-tbl tr:last-child td{border-bottom:none;}
+.trend-tbl tr:hover td{background:var(--accent-light);}
+.trend-tbl td:first-child{text-align:left;padding-left:18px;}
+.nm-cell{font-weight:500;font-size:12px;color:var(--text);}
+.nm-cell small{display:block;font-size:10px;color:var(--text3);}
+.tv{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;}
+.tv.ok{color:var(--accent);}
+.tv.mt{color:var(--accent3);}
+.tv.no{color:var(--text3);font-size:10px;}
+.chip{display:inline-flex;align-items:center;font-size:9px;padding:1px 5px;border-radius:8px;font-family:'IBM Plex Mono',monospace;margin-left:3px;}
+.cup{background:rgba(14,124,90,.1);color:var(--accent);}
+.cdn{background:rgba(220,38,38,.1);color:var(--accent4);}
+.ceq{background:rgba(106,158,138,.1);color:var(--text3);}
+
+/* ผู้รับผิดชอบ column */
+.th-owner{width:160px;}
+td.owner{padding:7px 5px 7px 3px;}
+.ko{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;
+  font-family:'Sarabun',sans-serif;outline:none;transition:all .2s;
+}
+.ko:focus{border-color:#d97706;background:#fff;box-shadow:0 0 0 3px rgba(217,119,6,.1);}
+.ko.hv{border-color:#d97706;color:#92400e;background:#fffbeb;font-weight:600;}
+.ko::placeholder{color:var(--text3);font-size:11px;}
+
+/* ORG BAR — มือถือ/iPad เท่านั้น */
+.mobile-org-bar{
+  display:none;
+  background:#065f46;
+  color:rgba(255,255,255,.9);
+  font-size:11px;font-weight:500;
+  text-align:center;
+  padding:7px 16px;
+  letter-spacing:.02em;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+@media(max-width:860px){
+  .mobile-org-bar{display:block;}
+  .hdr-sub{display:none;}
+}
+@media(min-width:861px){
+  .mobile-org-bar{display:none;}
+  .hdr-sub{display:block;}
+}
+
+/* SYNC STATUS BADGE */
+.sync-badge{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;
+  transition:all .3s;white-space:nowrap;
+}
+.sync-idle{background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);}
+.sync-pending{background:rgba(251,191,36,.2);color:#fef08a;}
+.sync-saving{background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);animation:pulse 1s infinite;}
+.sync-ok{background:rgba(56,217,169,.25);color:#6ee7b7;}
+.sync-error{background:rgba(239,68,68,.2);color:#fca5a5;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+/* DANGER BUTTON */
+.btn-danger{background:var(--surface2);border:1.5px solid #fca5a5;color:#dc2626;font-weight:600;}
+.btn-danger:hover{background:#fef2f2;border-color:#dc2626;}
+.btn-danger-solid{background:#dc2626;color:#fff;border:none;opacity:.4;cursor:not-allowed;transition:all .2s;}
+.btn-danger-solid.ready{opacity:1;cursor:pointer;box-shadow:0 3px 10px rgba(220,38,38,.3);}
+.btn-danger-solid.ready:hover{background:#b91c1c;transform:translateY(-1px);}
+
+/* MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);
+  backdrop-filter:blur(3px);z-index:500;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex;}
+.modal-box{
+  background:#fff;border-radius:16px;padding:28px 28px 22px;
+  max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);
+  animation:modalIn .25s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes modalIn{from{transform:scale(.9) translateY(10px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.modal-icon{font-size:36px;text-align:center;margin-bottom:10px;}
+.modal-title{font-size:17px;font-weight:700;color:#0f2d24;text-align:center;margin-bottom:8px;}
+.modal-body{font-size:13px;color:#4b5563;text-align:center;line-height:1.6;margin-bottom:18px;}
+.modal-scope{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:16px;}
+.modal-scope-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+.scope-option{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151;cursor:pointer;padding:4px 0;}
+.scope-option input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;}
+.modal-select{width:100%;margin-top:6px;margin-left:23px;background:#fff;border:1.5px solid #d1d5db;border-radius:7px;color:#374151;padding:6px 10px;font-size:12px;font-family:'Sarabun',sans-serif;outline:none;width:calc(100% - 23px);}
+.modal-select:focus{border-color:var(--accent);}
+.modal-pin-wrap{margin-bottom:16px;}
+.modal-pin-label{font-size:12px;color:#6b7280;margin-bottom:6px;}
+.modal-pin-label code{background:#fee2e2;color:#dc2626;padding:1px 6px;border-radius:4px;font-weight:700;}
+.modal-pin-input{
+  width:100%;border:1.5px solid #d1d5db;border-radius:8px;
+  padding:9px 14px;font-size:14px;font-family:'Sarabun',sans-serif;
+  outline:none;transition:all .2s;color:#0f2d24;
+}
+.modal-pin-input:focus{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.1);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--accent);border:none;border-radius:10px;
+  padding:12px 18px;font-size:13px;color:#fff;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 24px rgba(14,124,90,.4);
+  transform:translateY(60px);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:999;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* DIM badge colors */
+.d1{background:#0284c7;}.d2{background:#0e7c5a;}.d3{background:#d97706;}
+.d4{background:#7c3aed;}.d5{background:#dc2626;}.d6{background:#ea580c;}.dg{background:#475569;}
+
+/* 3-MONTH COMPARE */
+.cmp-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.cmp-hdr{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--surface2);}
+.cmp-ttl{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
+.cmp-legend{display:flex;gap:14px;align-items:center;}
+.cmp-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);}
+.cmp-leg-dot{width:10px;height:10px;border-radius:3px;}
+.cmp-scroll{overflow-x:auto;}
+.cmp-tbl{width:100%;border-collapse:collapse;min-width:700px;}
+.cmp-tbl th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+.cmp-tbl th:first-child{text-align:left;padding-left:18px;min-width:260px;width:40%;}
+.cmp-tbl th.th-cur{color:var(--accent);background:var(--accent-light);font-weight:700;}
+.cmp-tbl td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;text-align:center;vertical-align:middle;}
+.cmp-tbl tr:last-child td{border-bottom:none;}
+.cmp-tbl tr:hover td{background:var(--accent-light);}
+.cmp-tbl td:first-child{text-align:left;padding-left:18px;}
+.cmp-tbl td.td-cur{background:#f0faf6;}
+.cmp-dim-row td{padding:8px 18px;background:var(--surface2);font-size:10px;font-weight:700;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+.cmp-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;}
+.cmp-val.pass{color:var(--accent);}
+.cmp-val.fail{color:var(--accent4);}
+.cmp-val.warn{color:var(--accent3);}
+.cmp-val.none{color:var(--text3);font-size:10px;font-weight:400;}
+.cmp-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.35;}
+.delta{display:inline-flex;align-items:center;font-size:10px;padding:2px 6px;border-radius:6px;margin-left:4px;font-family:'IBM Plex Mono',monospace;vertical-align:middle;}
+.delta.up{background:rgba(14,124,90,.1);color:var(--accent);}
+.delta.dn{background:rgba(220,38,38,.1);color:var(--accent4);}
+.delta.eq{background:rgba(106,158,138,.1);color:var(--text3);}
+.pass-badge{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.pass-badge.ok{background:var(--accent2);}
+.pass-badge.ng{background:var(--accent4);}
+.pass-badge.na{background:var(--text3);opacity:.4;}
+
+/* ====== DIM PICKER ====== */
+.picker-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.dim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.dim-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:14px;
+  padding:18px 16px;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;gap:8px;
+  position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(14,124,90,.06);min-height:110px;
+}
+.dim-card:hover{border-color:var(--accent2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,124,90,.12);}
+.dim-card:active{transform:scale(.98);}
+.dim-card.complete{border-color:var(--accent2);background:linear-gradient(135deg,#f0fdf8,#e6f7f0);}
+.dim-card.partial{border-color:var(--accent3);}
+.dim-card-stripe{position:absolute;top:0;left:0;width:5px;height:100%;border-radius:14px 0 0 14px;}
+.dim-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.dim-card-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.35;flex:1;}
+.dim-card-badge{flex-shrink:0;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.badge-done{background:var(--accent2);color:#fff;}
+.badge-part{background:var(--accent3);color:#fff;}
+.badge-none{background:var(--surface3);color:var(--text3);}
+.dim-card-bar-bg{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.dim-card-bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.dim-card-stat{font-size:11px;color:var(--text3);}
+.dim-card.complete .dim-card-name::after{content:' ✓';color:var(--accent2);font-size:14px;}
+
+/* ====== DIM FORM ====== */
+.dim-form-hdr{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:12px 16px;margin-bottom:14px;
+  position:sticky;top:68px;z-index:10;box-shadow:0 2px 8px rgba(14,124,90,.08);
+}
+.back-btn{
+  display:flex;align-items:center;gap:4px;
+  background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;
+  padding:7px 12px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;
+  color:var(--text2);cursor:pointer;transition:all .2s;flex-shrink:0;white-space:nowrap;
+}
+.back-btn:hover{border-color:var(--accent);color:var(--accent);}
+.dim-form-title{font-size:13px;font-weight:700;color:var(--text);flex:1;line-height:1.3;}
+.dim-form-count{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text2);background:var(--accent-light);padding:3px 10px;border-radius:20px;flex-shrink:0;font-weight:600;}
+.dim-form-footer{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:8px;}
+
+/* KPI ITEM CARDS */
+.kpi-card-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.kpi-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
+  padding:14px 16px;box-shadow:0 1px 3px rgba(14,124,90,.05);transition:border-color .2s;
+}
+.kpi-card.filled{border-color:var(--accent2);background:#fafffe;}
+.kpi-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.kpi-card-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#fff;background:var(--text3);border-radius:5px;padding:2px 7px;flex-shrink:0;margin-top:2px;font-weight:700;}
+.kpi-card.filled .kpi-card-num{background:var(--accent2);}
+.kpi-card-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.45;flex:1;}
+.kpi-card-target{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;background:var(--surface2);padding:2px 8px;border-radius:5px;flex-shrink:0;font-weight:600;}
+.kpi-card-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.kpi-field{display:flex;flex-direction:column;gap:4px;}
+.kpi-field-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
+.kpi-field-label.owner-lbl{color:#92400e;}
+.kpi-field-note{grid-column:1/-1;}
+
+/* ====== RESPONSIVE ====== */
+
+/* iPad landscape (1024px) */
+@media(max-width:1080px){
+  .charts-row{grid-template-columns:1fr 1fr;}
+  .sum-grid{grid-template-columns:repeat(4,1fr);}
+}
+
+/* iPad portrait (768px) */
+@media(max-width:860px){
+  .charts-row{grid-template-columns:1fr;}
+  .sum-grid{grid-template-columns:1fr 1fr;}
+  .fy-sum-grid{grid-template-columns:1fr 1fr;}
+  .hdr{height:auto;padding:10px 14px;gap:8px;}
+  .hdr-sub{display:none;}
+  .nav-btn{padding:6px 10px;font-size:11px;}
+  .main{padding:14px 12px;}
+  .prog-bar-wrap{padding:14px 16px;}
+  /* entry table → card layout on mobile */
+  .kpi-tbl thead{display:none;}
+  .kpi-tbl tr{
+    display:flex;flex-wrap:wrap;
+    padding:12px 14px;gap:6px;
+    border-bottom:1px solid var(--border);
+    position:relative;
+    align-items:center;
+  }
+  .kpi-tbl tr:last-child{border-bottom:none;}
+  .kpi-tbl tr:hover{background:var(--accent-light);}
+  td.n{
+    padding:0;font-size:10px;color:var(--text3);
+    order:1;width:28px;flex-shrink:0;
+  }
+  td.nm{
+    padding:0;order:2;flex:1;min-width:0;
+    font-size:13px;font-weight:600;line-height:1.4;
+  }
+  td.nm small{font-size:10px;color:var(--text3);}
+  td.tgt{
+    padding:0;order:3;width:100%;
+    font-size:11px;color:var(--text2);text-align:left;
+    background:transparent;
+  }
+  td.tgt::before{content:'เป้าหมาย: ';color:var(--text3);font-size:10px;}
+  td.inp{
+    padding:0;order:4;width:calc(50% - 4px);
+    text-align:left;
+  }
+  td.inp::before{
+    content:'ผลการดำเนินงาน';display:block;
+    font-size:10px;color:var(--text3);margin-bottom:3px;
+    font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  }
+  td.owner{
+    padding:0;order:5;width:calc(50% - 4px);
+  }
+  td.owner::before{
+    content:'ผู้รับผิดชอบ';display:block;
+    font-size:10px;color:#92400e;margin-bottom:3px;
+    font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  }
+  td.nte{
+    padding:0;order:6;width:100%;
+  }
+  td.nte::before{
+    content:'หมายเหตุ';display:block;
+    font-size:10px;color:var(--text3);margin-bottom:3px;
+    font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .ki,.ko,.kn{font-size:14px;padding:9px 12px;}
+  .kn{height:40px;}
+  /* footer stacks */
+  .footer{flex-direction:column;align-items:stretch;gap:8px;}
+  .fa{flex-direction:column;gap:6px;}
+  .fa .btn{justify-content:center;padding:12px;}
+  /* dim header */
+  .dim-name{font-size:13px;}
+}
+
+/* Mobile (<480px) */
+@media(max-width:480px){
+  .hdr-title{font-size:13px;}
+  .nav{gap:2px;}
+  .nav-btn{padding:5px 8px;font-size:11px;gap:3px;}
+  .sum-grid{grid-template-columns:1fr 1fr;}
+  .fy-sum-grid{grid-template-columns:1fr 1fr;}
+  .prog-num{font-size:20px;}
+  td.inp{width:100%;}
+  td.owner{width:100%;}
+  /* modal */
+  .modal-box{padding:22px 18px 18px;}
+  .modal-title{font-size:15px;}
+}
+
+/* ====== FISCAL YEAR PAGE ====== */
+.fy-ctrl{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.fy-sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.fy-sum-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.fy-sum-card .sum-emo{font-size:20px;margin-bottom:5px;}
+.fy-sum-card .sv{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin-bottom:2px;}
+.fy-sum-card .sl{font-size:11px;color:var(--text3);}
+
+.fy-overview{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.fy-ov-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.fy-ov-dims{display:flex;flex-direction:column;gap:8px;}
+.fy-ov-row{display:flex;align-items:center;gap:10px;}
+.fy-ov-label{font-size:12px;color:var(--text2);width:280px;flex-shrink:0;}
+.fy-ov-bar-bg{flex:1;height:14px;background:var(--surface3);border-radius:7px;overflow:hidden;}
+.fy-ov-bar-fill{height:100%;border-radius:7px;transition:width .6s ease;}
+.fy-ov-stat{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--text2);width:70px;text-align:right;flex-shrink:0;}
+.fy-ov-pct{font-size:12px;font-weight:700;width:42px;text-align:right;flex-shrink:0;}
+
+.fy-tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(14,124,90,.06);}
+.fy-tbl-hdr{padding:13px 18px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.fy-tbl-title{font-size:12px;font-weight:700;color:var(--text2);}
+.fy-tbl{width:100%;border-collapse:collapse;min-width:900px;}
+.fy-tbl th{padding:9px 10px;font-size:10px;font-weight:700;color:var(--hdr-text);text-transform:uppercase;letter-spacing:.04em;background:var(--accent);border-bottom:1px solid var(--accent2);text-align:center;white-space:nowrap;}
+.fy-tbl th:first-child,.fy-tbl th:nth-child(2){text-align:left;}
+.fy-tbl th:first-child{padding-left:16px;width:36px;}
+.fy-tbl th:nth-child(2){min-width:220px;}
+.fy-tbl th.th-avg{background:#065f46;}
+.fy-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;text-align:center;vertical-align:middle;}
+.fy-tbl td:first-child{padding-left:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);}
+.fy-tbl td:nth-child(2){text-align:left;}
+.fy-tbl tr:last-child td{border-bottom:none;}
+.fy-tbl tr:hover td{background:var(--accent-light);}
+.fy-dim-row td{background:var(--surface2);font-size:10px;font-weight:700;letter-spacing:.05em;padding:8px 16px;border-bottom:1px solid var(--border);}
+.fy-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
+.fy-val.ok{color:var(--accent);}
+.fy-val.ng{color:var(--accent4);}
+.fy-val.na{color:var(--text3);font-size:10px;}
+.fy-pass-icon{font-size:13px;}
+.fy-avg{font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:700;}
+.fy-avg.ok{color:var(--accent);}
+.fy-avg.ng{color:var(--accent4);}
+.fy-avg.na{color:var(--text3);}
+.fy-filled{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;}
+.mo-empty{color:var(--text3);font-size:10px;}
+
+/* ====== RESPONSIVE ====== */
+@media(max-width:860px){
+  .dim-grid{grid-template-columns:1fr 1fr;}
+  #kpi-form{display:none!important;}
+  .charts-row{grid-template-columns:1fr;}
+  .sum-grid{grid-template-columns:1fr 1fr;}
+  .fy-sum-grid{grid-template-columns:1fr 1fr;}
+  .hdr{height:auto;padding:10px 14px;gap:8px;}
+  .hdr-sub{display:none;}
+  .nav-btn{padding:6px 10px;font-size:11px;}
+  .main{padding:14px 12px;}
+  .prog-bar-wrap{padding:14px 16px;}
+  .footer{flex-direction:column;align-items:stretch;gap:8px;}
+  .fa{flex-direction:column;gap:6px;}
+  .fa .btn{justify-content:center;padding:12px;}
+}
+@media(min-width:861px){
+  .kpi-card-list{display:none!important;}
+  #dim-picker{display:none!important;}
+  #dim-form-wrap{display:none!important;}
+  #entry-footer{display:flex!important;}
+  #kpi-form{display:block!important;}
+  .dim-section{display:block!important;}
+  .dim-body{display:block!important;}
+  .kpi-tbl{display:table!important;}
+}
+@media(max-width:480px){
+  .dim-grid{grid-template-columns:1fr 1fr;}
+  .dim-card{min-height:96px;padding:12px;}
+  .dim-card-name{font-size:12px;}
+  .kpi-card-fields{grid-template-columns:1fr!important;}
+  .hdr-title{font-size:13px;}
+  .nav{gap:2px;}
+  .nav-btn{padding:5px 8px;font-size:11px;}
+  .prog-num{font-size:20px;}
+  .modal-box{padding:22px 18px 18px;}
+}
+@media(max-width:400px){
+  .nav-label{display:none;}
+  .nav-btn{padding:7px 10px;font-size:16px;}
+}
+
+/* utility: hide on mobile nav */
+.mob-hidden{display:none!important;}
+
+/* ====== CRITICAL / HIGH RISK ITEMS ====== */
+.critical-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#fef2f2;border:1.5px solid #fca5a5;
+  color:#dc2626;border-radius:6px;
+  font-size:10px;font-weight:700;
+  padding:2px 7px;white-space:nowrap;flex-shrink:0;
+  letter-spacing:.02em;
+}
+/* desktop table row */
+.kpi-tbl tr.critical-row td{background:#fff9f9;}
+.kpi-tbl tr.critical-row:hover td{background:#fef2f2;}
+.kpi-tbl tr.critical-row td.nm{border-left:3px solid #ef4444;}
+/* mobile card */
+.kpi-card.critical{
+  border-color:#fca5a5;
+  background:linear-gradient(to right,#fff9f9,#fff);
+}
+.kpi-card.critical.filled{border-color:#86efac;background:#f0fdf4;}
+.kpi-card.critical .kpi-card-num{background:#ef4444;}
+/* dim card critical count */
+.critical-count{
+  font-size:10px;color:#dc2626;font-weight:700;
+  background:#fef2f2;border:1px solid #fca5a5;
+  border-radius:5px;padding:1px 6px;margin-top:2px;
+  display:inline-block;
+}
+/* fiscal table critical */
+.fy-tbl tr.critical-row td{background:#fff9f9;}
+.fy-tbl tr.critical-row td:nth-child(2){border-left:3px solid #ef4444;}
+
+/* ====== PRINT STYLES ====== */
+.print-header{display:none;}
+.print-footer{display:none;}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#fff;color:#111;font-family:'Sarabun',sans-serif;}
+  .hdr,.nav,.no-print,.footer,.toast{display:none!important;}
+  .page{display:none!important;}
+  #page-fiscal{display:block!important;}
+  .main{max-width:100%;padding:0;margin:0;}
+  .print-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px 12px;
+    background:#0e7c5a;
+    margin-bottom:14px;gap:12px;
+  }
+  .print-logo-row{display:flex;align-items:center;gap:10px;}
+  .print-logo{width:36px;height:36px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:'IBM Plex Mono',monospace;}
+  .print-main-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3;}
+  .print-sub-title{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px;}
+  .print-fy-badge{font-size:13px;font-weight:700;color:#0e7c5a;background:#fff;padding:6px 16px;border-radius:6px;}
+  .print-footer{display:block;text-align:center;font-size:10px;color:#777;margin-top:16px;padding-top:8px;border-top:1px solid #cde8df;}
+  .fy-ctrl{display:none!important;}
+  .fy-sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+  .fy-sum-card{background:#f0faf6;border:1px solid #b8ddd0;border-radius:6px;padding:9px 12px;}
+  .fy-sum-card .sv{color:#0e7c5a!important;font-size:19px;}
+  .fy-sum-card .sl{color:#2d6b55;}
+  .fy-overview{background:#f0faf6;border:1px solid #b8ddd0;border-radius:6px;padding:10px 14px;margin-bottom:10px;}
+  .fy-ov-bar-bg{background:#cde8df;}
+  .fy-ov-label{color:#0f2d24;font-size:11px;}
+  .fy-ov-stat,.fy-ov-pct{color:#0f2d24;}
+  .fy-tbl-wrap{border:1px solid #b8ddd0;border-radius:6px;overflow:hidden;margin-bottom:0;}
+  .fy-tbl-hdr{background:#e8f5f0;padding:8px 14px;border-bottom:1px solid #b8ddd0;}
+  .fy-tbl-title{color:#0e7c5a;}
+  .fy-tbl th{background:#0e7c5a;color:#fff;padding:6px 8px;font-size:9px;}
+  .fy-tbl th.th-avg{background:#065f46;}
+  .fy-tbl td{padding:5px 8px;border-bottom:1px solid #ddf0e8;font-size:10px;}
+  .fy-dim-row td{background:#d1ede4!important;color:#0e7c5a;}
+  .fy-val.ok,.fy-avg.ok{color:#15803d!important;}
+  .fy-val.ng,.fy-avg.ng{color:#dc2626!important;}
+  .fy-tbl tr:hover td{background:transparent;}
+  @page{margin:10mm 8mm;size:A4 landscape;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="logo">OR</div>
+    <div>
+      <div class="hdr-title">Nursing Outcome · ห้องผ่าตัด</div>
+      <div class="hdr-sub">กลุ่มงานการพยาบาลผู้ป่วยห้องผ่าตัด · โรงพยาบาลมหาสารคาม</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" id="nav-entry" onclick="showPage('entry')">
+      ✏️ <span class="nav-label">กรอกข้อมูล</span>
+    </button>
+    <button class="nav-btn" id="nav-report" onclick="showPage('report')">
+      📊 <span class="nav-label">รายงานรายเดือน</span>
+    </button>
+    <button class="nav-btn" id="nav-fiscal" onclick="showPage('fiscal')">
+      📅 <span class="nav-label">สรุปปีงบ</span>
+    </button>
+  </div>
+  <div class="hdr-right">
+    <div id="sync-status" class="sync-badge sync-idle">☁️ <span>เชื่อมต่อ Sheets</span></div>
+    <span style="font-size:11px;color:rgba(255,255,255,.7)">เดือน:</span>
+    <select id="month-sel-m" onchange="onMonthChange()" style="width:auto">
+      <option value="01">ม.ค.</option><option value="02">ก.พ.</option>
+      <option value="03">มี.ค.</option><option value="04">เม.ย.</option>
+      <option value="05">พ.ค.</option><option value="06">มิ.ย.</option>
+      <option value="07">ก.ค.</option><option value="08">ส.ค.</option>
+      <option value="09">ก.ย.</option><option value="10">ต.ค.</option>
+      <option value="11">พ.ย.</option><option value="12">ธ.ค.</option>
+    </select>
+    <select id="month-sel-y" onchange="onMonthChange()" style="width:auto">
+    </select>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ชื่อหน่วยงาน — แสดงบนมือถือใต้ header -->
+  <div class="mobile-org-bar">
+    🏥 กลุ่มงานการพยาบาลผู้ป่วยห้องผ่าตัด · โรงพยาบาลมหาสารคาม
+  </div>
+<div class="page active" id="page-entry">
+
+  <!-- OVERALL PROGRESS BAR -->
+  <div class="prog-bar-wrap">
+    <div class="prog-info">
+      <div class="prog-title">ความคืบหน้า · <span id="month-display">มิถุนายน 2568</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-stat" id="prog-stat">กรอกแล้ว 0 / 57 ตัวชี้วัด</div>
+    </div>
+    <div class="prog-num" id="prog-pct">0%</div>
+  </div>
+
+  <!-- STEP 1: DIM PICKER (แสดงเสมอ) -->
+  <div id="dim-picker">
+    <div class="picker-title">เลือกมิติที่ต้องการกรอก</div>
+    <div class="dim-grid" id="dim-grid"></div>
+  </div>
+
+  <!-- STEP 2: DIM FORM (แสดงเมื่อเลือกมิติ) -->
+  <div id="dim-form-wrap" style="display:none">
+    <div class="dim-form-hdr">
+      <button class="back-btn" onclick="backToPicker()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        กลับ
+      </button>
+      <div class="dim-form-title" id="dim-form-title"></div>
+      <div class="dim-form-count" id="dim-form-count"></div>
+    </div>
+    <div id="dim-form-body"></div>
+    <div class="dim-form-footer">
+      <button class="btn btn-ghost" onclick="backToPicker()">← กลับเลือกมิติ</button>
+      <button class="btn btn-ghost" onclick="loadFromSheets()">☁️ โหลดจาก Sheets</button>
+      <button class="btn btn-success" onclick="saveMonth()">✅ ส่งข้อมูลไป Google Sheets</button>
+    </div>
+  </div>
+
+  <!-- FOOTER (แสดงเมื่ออยู่ที่ picker) -->
+  <div class="footer" id="entry-footer">
+    <div class="footer-info">เดือน <strong id="footer-month">มิถุนายน 2568</strong></div>
+    <div class="fa">
+      <button class="btn btn-danger" onclick="showClearModal()">🗑️ ล้างข้อมูล</button>
+      <button class="btn btn-ghost" id="load-sheets-btn" onclick="loadFromSheets()">☁️ โหลดจาก Sheets</button>
+      <button class="btn btn-ghost" onclick="saveDraft()">💾 บันทึกร่าง</button>
+      <button class="btn btn-success" onclick="saveMonth()">✅ ส่งข้อมูลไป Google Sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CLEAR CONFIRM MODAL ===== -->
+<div class="modal-overlay" id="clear-modal" onclick="if(event.target===this)closeClearModal()">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">ยืนยันการล้างข้อมูล</div>
+    <div class="modal-body">
+      การล้างข้อมูลจะ<strong>ลบผลการดำเนินงานทั้งหมด</strong>ของเดือน
+      <span id="modal-month-lbl" style="color:var(--accent);font-weight:700"></span>
+      และไม่สามารถกู้คืนได้
+    </div>
+
+    <div class="modal-scope">
+      <div class="modal-scope-title">เลือกขอบเขตที่ต้องการล้าง</div>
+      <label class="scope-option">
+        <input type="radio" name="clear-scope" value="dim" checked>
+        <span>ล้างเฉพาะ <strong>มิติที่เลือก</strong></span>
+      </label>
+      <select id="clear-dim-sel" class="modal-select">
+        <option value="dg">ตัวชี้วัดกลุ่มงาน</option>
+      </select>
+      <label class="scope-option" style="margin-top:8px">
+        <input type="radio" name="clear-scope" value="all">
+        <span>ล้าง<strong>ทั้งเดือน</strong> (ทุกมิติ 57 ตัว)</span>
+      </label>
+    </div>
+
+    <div class="modal-pin-wrap">
+      <div class="modal-pin-label">พิมพ์ <code>ลบ</code> เพื่อยืนยัน</div>
+      <input type="text" id="clear-pin" class="modal-pin-input" placeholder="พิมพ์ ลบ ที่นี่" autocomplete="off"
+        oninput="const ok=this.value.trim()==='ลบ';const b=document.getElementById('clear-confirm-btn');b.disabled=!ok;b.classList.toggle('ready',ok)">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeClearModal()">ยกเลิก</button>
+      <button class="btn btn-danger-solid" id="clear-confirm-btn" onclick="doClear()" disabled>ล้างข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE: REPORT ===== -->
+<div class="page" id="page-report">
+  <div class="rpt-ctrl">
+    <span class="rc-lbl">ปี:</span>
+    <select id="rpt-year" onchange="renderReport()">
+      <option value="2568">2568</option><option value="2567">2567</option>
+    </select>
+    <span class="rc-lbl">ตัวชี้วัด:</span>
+    <select id="rpt-kpi" onchange="renderReport()" style="max-width:300px;"></select>
+  </div>
+
+  <div class="sum-grid" id="rpt-sum"></div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">แนวโน้มรายเดือน</div>
+      <div class="chart-sub" id="c1sub">ตัวชี้วัดที่เลือก · 12 เดือน</div>
+      <div class="chart-wrap"><canvas id="chart1"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">ผลเทียบเป้าหมาย</div>
+      <div class="chart-sub" id="c2sub">6 เดือนล่าสุด</div>
+      <div class="chart-wrap"><canvas id="chart2"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 3-MONTH COMPARE -->
+  <div class="cmp-wrap">
+    <div class="cmp-hdr">
+      <div>
+        <div class="cmp-ttl">📋 เปรียบเทียบ 3 เดือนล่าสุด — ทุกตัวชี้วัด</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="cmp-period-lbl"></div>
+      </div>
+      <div class="cmp-legend">
+        <div class="cmp-leg-item"><span class="cmp-leg-dot" style="background:var(--accent2)"></span>ผ่านเป้าหมาย</div>
+        <div class="cmp-leg-item"><span class="cmp-leg-dot" style="background:var(--accent4)"></span>ไม่ผ่านเป้าหมาย</div>
+        <div class="cmp-leg-item"><span class="delta up">▲</span>ดีขึ้น</div>
+        <div class="cmp-leg-item"><span class="delta dn">▼</span>แย่ลง</div>
+      </div>
+    </div>
+    <div class="cmp-scroll">
+      <table class="cmp-tbl" id="cmp-tbl"></table>
+    </div>
+  </div>
+
+  <div class="trend-wrap">
+    <div class="trend-hdr">
+      <div class="trend-ttl">ตารางรายเดือน — ทุกตัวชี้วัด (ทั้งปี)</div>
+      <div style="font-size:11px;color:var(--text3)" id="rpt-period-lbl">ปี 2568</div>
+    </div>
+    <div class="trend-scroll">
+      <table class="trend-tbl" id="trend-tbl"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE: FISCAL YEAR ===== -->
+<div class="page" id="page-fiscal">
+
+  <div class="fy-ctrl no-print">
+    <span class="rc-lbl">ปีงบประมาณ:</span>
+    <select id="fy-year" onchange="renderFiscal()">
+      <option value="2568">2568 (ต.ค.67 – ก.ย.68)</option>
+      <option value="2567">2567 (ต.ค.66 – ก.ย.67)</option>
+    </select>
+    <button class="btn btn-ghost" onclick="window.print()" style="margin-left:auto">
+      🖨️ พิมพ์ / บันทึก PDF
+    </button>
+  </div>
+
+  <!-- PRINT HEADER (shows only when printing) -->
+  <div class="print-header">
+    <div class="print-logo-row">
+      <div class="print-logo">OR</div>
+      <div>
+        <div class="print-main-title">รายงานสรุปตัวชี้วัด Nursing Outcome</div>
+        <div class="print-sub-title">กลุ่มงานการพยาบาลผู้ป่วยห้องผ่าตัด · โรงพยาบาลมหาสารคาม</div>
+      </div>
+    </div>
+    <div class="print-fy-badge" id="print-fy-badge">ปีงบประมาณ 2568</div>
+  </div>
+
+  <!-- FISCAL SUMMARY CARDS -->
+  <div class="fy-sum-grid" id="fy-sum-grid"></div>
+
+  <!-- FISCAL PASS/FAIL OVERVIEW -->
+  <div class="fy-overview" id="fy-overview"></div>
+
+  <!-- MAIN TABLE -->
+  <div class="fy-tbl-wrap">
+    <div class="fy-tbl-hdr no-print">
+      <div class="fy-tbl-title">ผลการดำเนินงานรายตัวชี้วัด · ปีงบประมาณ <span id="fy-tbl-year"></span></div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="fy-tbl" id="fy-tbl"></table>
+    </div>
+  </div>
+
+  <div class="print-footer">
+    พิมพ์เมื่อ: <span id="print-date"></span> · ระบบบันทึกตัวชี้วัด Nursing Outcome ห้องผ่าตัด โรงพยาบาลมหาสารคาม
+  </div>
+
+</div>
+
+</main>
+
+<div class="toast" id="toast">✔ <span id="toast-msg">บันทึกสำเร็จ</span></div>
+
+<script>
+// =====================================================
+// KPI DEFINITIONS — 57 ตัวชี้วัดตามฟอร์มจริง
+// =====================================================
+const DIMS = [
+  {
+    id:'d1', name:'มิติที่ 1 — ผลลัพธ์ด้านการนำองค์กร', color:'#4f8ef7', cls:'d1',
+    items:[
+      {id:1,  name:'ร้อยละของตัวชี้วัดวิสัยทัศน์ที่บรรลุเป้าหมาย', target:'≥80', unit:'%'},
+      {id:2,  name:'ร้อยละของโครงการ/กิจกรรมที่มีคะแนนความเสี่ยงลดลง', target:'≥80', unit:'%'},
+      {id:3,  name:'ร้อยละของบุคลากรพยาบาลที่มีผลประเมินจริยธรรมผ่านเกณฑ์', target:'≥80', unit:'%'},
+    ]
+  },
+  {
+    id:'d2', name:'มิติที่ 2 — ผลลัพธ์ด้านประสิทธิภาพ', color:'#38d9a9', cls:'d2',
+    items:[
+      {id:4,  name:'ผลิตภาพของงานการพยาบาลผู้ป่วยผ่าตัด (Nursing Productivity)', target:'90–110', unit:''},
+      {id:5,  name:'ร้อยละของการเลื่อนผ่าตัดจากผู้ป่วยไม่พร้อม', target:'0', unit:'%'},
+      {id:6,  name:'ร้อยละของการเลื่อนผ่าตัดจากความไม่พร้อมของเวชภัณฑ์/เครื่องมือ', target:'0', unit:'%'},
+      {id:7,  name:'ร้อยละของบุคลากรที่ปฏิบัติงาน >60 ชม./สัปดาห์', target:'0', unit:'%'},
+      {id:8,  name:'ร้อยละของอุบัติการณ์ความเสี่ยงทางการพยาบาลได้รับการจัดการทันเวลา', target:'≥80', unit:'%'},
+    ]
+  },
+  {
+    id:'d3', name:'มิติที่ 3 — ผลลัพธ์ด้านผู้ใช้บริการ', color:'#f7a84f', cls:'d3',
+    items:[
+      {id:9,  name:'ร้อยละความพึงพอใจของผู้ใช้บริการต่อบริการพยาบาล', target:'≥80', unit:'%'},
+      {id:10, name:'ร้อยละความพึงพอใจของผู้มีส่วนได้ส่วนเสียต่อหน่วยงาน', target:'≥80', unit:'%'},
+      {id:11, name:'ร้อยละความไม่พึงพอใจของผู้ใช้บริการ', target:'≤5', unit:'%'},
+      {id:12, name:'จำนวนข้อร้องเรียนเกี่ยวกับสิทธิ/การละเมิดสิทธิผู้ใช้บริการ', target:'0', unit:'ครั้ง'},
+      {id:13, name:'จำนวนข้อร้องเรียนเกี่ยวกับสิทธิ/ละเมิดสิทธิผู้ใช้บริการกลุ่มเฉพาะ', target:'0', unit:'ครั้ง'},
+      {id:14, name:'จำนวนข้อร้องเรียนเกี่ยวกับพฤติกรรมบริการบุคลากรพยาบาล', target:'0', unit:'ครั้ง'},
+      {id:15, name:'จำนวนข้อร้องเรียนเกี่ยวกับการละเมิดข้อมูลส่วนบุคคล', target:'0', unit:'ครั้ง'},
+      {id:16, name:'ร้อยละของการแก้ไข/ตอบกลับข้อร้องเรียนของผู้ใช้บริการ', target:'≥80', unit:'%'},
+    ]
+  },
+  {
+    id:'d4', name:'มิติที่ 4 — ผลลัพธ์ด้านบุคลากร', color:'#c084fc', cls:'d4',
+    items:[
+      {id:17, name:'ร้อยละความผูกพันของบุคลากรพยาบาล', target:'≥80', unit:'%'},
+      {id:18, name:'ร้อยละความพึงพอใจในงานและบรรยากาศองค์กร', target:'≥80', unit:'%'},
+      {id:19, name:'ร้อยละการโอนย้ายและลาออกของบุคลากรพยาบาล', target:'≤1', unit:'%'},
+      {id:20, name:'ร้อยละของบุคลากรที่มีสมรรถนะตามบทบาทหน้าที่', target:'100', unit:'%'},
+      {id:21, name:'ร้อยละของบุคลากรได้รับการอบรมฟื้นฟู CPR ขั้นพื้นฐาน ≥1 ครั้ง/ปี', target:'100', unit:'%'},
+      {id:22, name:'ร้อยละของบุคลากรได้รับการอบรมฟื้นฟู CPR ขั้นสูง ≥1 ครั้ง/ปี', target:'≥80', unit:'%'},
+      {id:23, name:'ร้อยละของบุคลากรได้รับการอบรมป้องกัน/ควบคุมการติดเชื้อ ≥1 ครั้ง/ปี', target:'100', unit:'%'},
+      {id:24, name:'ร้อยละของบุคลากรที่ได้รับการตรวจสุขภาพประจำปีและตามความเสี่ยง', target:'100', unit:'%'},
+      {id:25, name:'ร้อยละของบุคลากรที่เจ็บป่วย/เกิดอุบัติเหตุจากงานได้รับการดูแล', target:'100', unit:'%'},
+    ]
+  },
+  {
+    id:'d5', name:'มิติที่ 5 — ผลลัพธ์ด้านระบบงานและกระบวนการสำคัญ', color:'#e06c75', cls:'d5',
+    items:[
+      {id:26, name:'ร้อยละของบุคลากรที่ปฏิบัติตามแนวทางปฏิบัติการพยาบาล', target:'100', unit:'%'},
+      {id:27, name:'ร้อยละของการบันทึกทางการพยาบาลตามเกณฑ์มาตรฐาน', target:'100', unit:'%'},
+      {id:28, name:'ร้อยละของอุบัติการณ์ภัยพิบัติ/ฉุกเฉินได้รับการจัดการตามกระบวนการ', target:'100', unit:'%'},
+      {id:29, name:'ร้อยละของฐานข้อมูลที่นำมาใช้ประโยชน์ทางการพยาบาล', target:'≥80', unit:'%'},
+      {id:30, name:'ร้อยละขององค์ความรู้/นวัตกรรมที่พัฒนาด้วย KM และนำไปใช้', target:'≥80', unit:'%'},
+      {id:31, name:'จำนวนอุบัติการณ์ความไม่พร้อมต่อการช่วยชีวิตฉุกเฉิน', target:'0', unit:'ครั้ง'},
+    ]
+  },
+  {
+    id:'d6', name:'มิติที่ 6 — ผลลัพธ์ด้านการบริการพยาบาล', color:'#fb923c', cls:'d6',
+    items:[
+      {id:32, name:'ร้อยละของผู้ป่วยภาวะคุกคามชีวิตได้รับการแก้ไขทันทีภายใน 4 นาที', target:'100', unit:'%'},
+      {id:33, name:'อัตราการเกิดอาการเปลี่ยนแปลงโดยไม่ได้คาดการณ์', target:'0', unit:'ครั้ง'},
+      {id:34, name:'อุบัติการณ์มีสิ่งของ/อุปกรณ์ตกค้างในร่างกายผู้ป่วยหลังผ่าตัด', target:'0', unit:'ครั้ง', critical:true},
+      {id:35, name:'อัตราการติดเชื้อแผลสะอาด', target:'0', unit:'%', critical:true},
+      {id:36, name:'อัตราการเกิดอุบัติการณ์ไม่พึงประสงค์ระหว่างส่งต่อ/เคลื่อนย้าย', target:'0', unit:'ครั้ง', critical:true},
+      {id:37, name:'ร้อยละของความคลาดเคลื่อนบริหารยา/สารน้ำ ระดับ E–I', target:'0', unit:'%', critical:true},
+      {id:38, name:'จำนวนอุบัติการณ์การระบุตัวผู้ป่วยผิดคน', target:'0', unit:'ครั้ง', critical:true},
+      {id:39, name:'จำนวนอุบัติการณ์การระบุตำแหน่งผ่าตัดผิด', target:'0', unit:'ครั้ง', critical:true},
+      {id:40, name:'ร้อยละของการพลัดตกหกล้มมีความรุนแรงระดับ E–I', target:'0', unit:'%', critical:true},
+      {id:41, name:'อัตราการเกิดการบาดเจ็บจากการจัดท่า/ผูกยึด/ใช้อุปกรณ์', target:'0', unit:'ครั้ง', critical:true},
+    ]
+  },
+  {
+    id:'dg', name:'ตัวชี้วัดกลุ่มงาน', color:'#64748b', cls:'dg',
+    items:[
+      {id:42, name:'ร้อยละของผู้ป่วยนัดผ่าตัด (Elective) ได้รับการเยี่ยมก่อนผ่าตัด', target:'100', unit:'%'},
+      {id:43, name:'อุบัติการณ์บริหารยาผิด ความเสี่ยงระดับ E ขึ้นไป', target:'0', unit:'ครั้ง'},
+      {id:44, name:'อุบัติการณ์การแพ้ยาซ้ำ', target:'0', unit:'ราย'},
+      {id:45, name:'อัตราการทำ Surgical Safety Checklist', target:'100', unit:'%'},
+      {id:46, name:'อัตราผู้ป่วยหลังผ่าตัดได้รับการประเมินและสอนการปฏิบัติตัว', target:'100', unit:'%'},
+      {id:47, name:'ร้อยละของบุคลากรที่มีสมรรถนะตามเกณฑ์ที่กำหนด', target:'100', unit:'%'},
+      {id:48, name:'ร้อยละของบุคลากรได้รับการอบรม 10 วัน/คน/ปี', target:'100', unit:'%'},
+      {id:49, name:'ร้อยละของพยาบาลวิชาชีพได้รับการอบรมฟื้นฟู CPR ขั้นสูง', target:'100', unit:'%'},
+      {id:50, name:'จำนวนอุบัติการณ์อุบัติเหตุจากการปฏิบัติงานของบุคลากร', target:'0', unit:'ครั้ง'},
+      {id:51, name:'ร้อยละของสาขาทางการพยาบาลที่มีงานวิจัย (1 เรื่อง/สาขา)', target:'100', unit:'%'},
+      {id:52, name:'อัตราความครอบคลุมของบุคลากรในการซ้อมรับอุบัติเหตุหมู่/ภัยพิบัติ', target:'≥80', unit:'%'},
+      {id:53, name:'ร้อยละความสมบูรณ์เวชระเบียนทางการพยาบาล', target:'≥85', unit:'%'},
+      {id:54, name:'ร้อยละการได้รับ ATB ตามกำหนด', target:'≥90', unit:'%'},
+      {id:55, name:'ร้อยละของบุคลากรที่ติดเชื้อ TB', target:'0', unit:'%'},
+      {id:56, name:'อุบัติการณ์ผ่าตัดซ้ำโดยไม่ได้วางแผน', target:'0', unit:'ครั้ง'},
+      {id:57, name:'ร้อยละของการทำ Tele Nursing ผู้ป่วยนอกผ่าตัดก้อนที่เต้านม', target:'≥80', unit:'%'},
+    ]
+  }
+];
+const ALL_ITEMS = DIMS.flatMap(d=>d.items);
+const MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MONTHS_FULL  = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+// =====================================================
+// STORAGE  key = "or-no-v1"
+// allData[monthKey][kpiId] = {value, note}
+// =====================================================
+let allData = {};
+let currentMonth = '2025-06';
+function load(){ try{ allData=JSON.parse(localStorage.getItem('or-no-v1')||'{}'); }catch(e){ allData={}; } }
+function save(){ localStorage.setItem('or-no-v1',JSON.stringify(allData)); }
+function md(mk){ return allData[mk]||{}; }
+function setMd(mk,d){ allData[mk]=d; }
+
+// demo data
+function genDemo(){
+  const base={
+    1:85,2:82,3:90,4:100,5:0,6:0,7:0,8:88,
+    9:85,10:82,11:3,12:0,13:0,14:0,15:0,16:92,
+    17:82,18:80,19:0.5,20:100,21:100,22:85,23:100,24:100,25:100,
+    26:100,27:100,28:100,29:82,30:80,31:0,
+    32:100,33:0,34:0,35:0,36:0,37:0,38:0,39:0,40:0,41:0,
+    42:94,43:0,44:0,45:100,46:72,47:100,48:100,49:100,50:0,51:100,52:100,53:96,54:100,55:0,56:0,57:80
+  };
+  for(let m=1;m<=12;m++){
+    const mk=`2025-${String(m).padStart(2,'0')}`;
+    if(!allData[mk]){
+      allData[mk]={};
+      ALL_ITEMS.forEach(item=>{
+        const v=base[item.id]??0;
+        const jitter=(Math.random()-.5)*8;
+        allData[mk][item.id]={value:Math.max(0,v+jitter).toFixed(1).replace(/\.0$/,''),note:''};
+      });
+    }
+  }
+  save();
+}
+
+// =====================================================
+// DIM PICKER (mobile/tablet)
+// =====================================================
+const DIM_EMOJIS = {d1:'🏆',d2:'⚡',d3:'😊',d4:'👥',d5:'⚙️',d6:'🛡️',dg:'📋'};
+
+function buildDimPicker(){
+  const grid = document.getElementById('dim-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  const data = md(currentMonth);
+
+  DIMS.forEach(dim=>{
+    const total=dim.items.length;
+    const filled=dim.items.filter(i=>data[i.id]?.value).length;
+    const pct=total?Math.round(filled/total*100):0;
+    const state=pct===100?'complete':filled>0?'partial':'empty';
+    const badgeCls=pct===100?'badge-done':filled>0?'badge-part':'badge-none';
+    const badgeTxt=pct===100?'ครบแล้ว ✓':filled>0?`${filled}/${total}`:`0/${total}`;
+    const shortName=dim.name.replace(/มิติที่\s*\d+\s*—\s*/,'').replace('ผลลัพธ์ด้าน','');
+
+    const card=document.createElement('div');
+    card.className=`dim-card ${state}`;
+    card.innerHTML=`
+      <div class="dim-card-stripe" style="background:${dim.color}"></div>
+      <div class="dim-card-top">
+        <div class="dim-card-name">${DIM_EMOJIS[dim.id]||'📌'} ${shortName}</div>
+        <span class="dim-card-badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="dim-card-bar-bg">
+        <div class="dim-card-bar-fill" style="width:${pct}%;background:${dim.color}"></div>
+      </div>
+      <div class="dim-card-stat">${dim.items.length} ตัวชี้วัด</div>`;
+    card.onclick=()=>openDim(dim.id);
+    grid.appendChild(card);
+  });
+}
+
+function openDim(dimId){
+  const dim=DIMS.find(d=>d.id===dimId);
+  const data=md(currentMonth);
+  const filled=dim.items.filter(i=>data[i.id]?.value).length;
+
+  // set header
+  document.getElementById('dim-form-title').textContent=
+    `${DIM_EMOJIS[dimId]||'📌'} ${dim.name.replace(/มิติที่\s*\d+\s*—\s*/,'')}`;
+  document.getElementById('dim-form-count').textContent=`${filled}/${dim.items.length}`;
+
+  // build card list
+  const body=document.getElementById('dim-form-body');
+  body.innerHTML=`<div class="kpi-card-list" id="kpi-cards-${dimId}"></div>`;
+  const list=body.querySelector('.kpi-card-list');
+
+  dim.items.forEach(item=>{
+    const d=data[item.id]||{value:'',note:'',owner:''};
+    const isOwner=dim.id==='dg';
+    const isCrit=item.critical===true;
+    const card=document.createElement('div');
+    card.className=`kpi-card ${d.value?'filled':''} ${isCrit?'critical':''}`;
+    card.id=`kc-${item.id}`;
+    const critBanner = isCrit ? `
+      <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:7px 10px;margin-bottom:8px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:18px">🚨</span>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#dc2626">ตัวชี้วัดความปลอดภัยสูง — ห้ามเกิด</div>
+          <div style="font-size:10px;color:#ef4444;margin-top:1px">Never Event · ต้องรายงานทันทีหากเกิดขึ้น ค่าเป้าหมาย = 0</div>
+        </div>
+      </div>` : '';
+    card.innerHTML=`
+      ${critBanner}
+      <div class="kpi-card-top">
+        <span class="kpi-card-num">${String(item.id).padStart(2,'0')}</span>
+        <span class="kpi-card-name">${item.name}</span>
+        <span class="kpi-card-target">${item.target}${item.unit?' '+item.unit:''}</span>
+      </div>
+      <div class="kpi-card-fields">
+        <div class="kpi-field">
+          <div class="kpi-field-label">ผลการดำเนินงาน</div>
+          <input type="text" inputmode="decimal" class="ki ${d.value?'hv':''}"
+            value="${d.value}" placeholder="${isCrit?'ถ้าเกิดขึ้น ใส่จำนวน':'กรอกตัวเลข'}"
+            style="${isCrit?'border-color:#fca5a5;':''}"
+            onchange="setValCard(${item.id},'${dim.id}',this.value,this)"
+            oninput="this.classList.toggle('hv',this.value.trim()!=='')">
+        </div>
+        ${isOwner?`
+        <div class="kpi-field">
+          <div class="kpi-field-label owner-lbl">ผู้รับผิดชอบ</div>
+          <input type="text" class="ko ${d.owner?'hv':''}"
+            value="${d.owner||''}" placeholder="ชื่อผู้รับผิดชอบ"
+            onchange="setOwner(${item.id},this.value)"
+            oninput="this.classList.toggle('hv',this.value.trim()!=='')">
+        </div>`:''}
+        <div class="kpi-field kpi-field-note">
+          <div class="kpi-field-label">${isCrit?'⚠️ รายละเอียด/การจัดการ':'หมายเหตุ (ถ้ามีปัญหา)'}</div>
+          <textarea class="kn" style="height:38px;${isCrit?'border-color:#fca5a5;':''}"
+            onchange="setNote(${item.id},this.value)"
+            placeholder="${isCrit?'บันทึกรายละเอียดและการดำเนินการแก้ไข':'บันทึกเพิ่มเติม'}">${d.note}</textarea>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  // show form, hide picker+footer
+  document.getElementById('dim-picker').classList.add('mob-hidden');
+  document.getElementById('entry-footer').classList.add('mob-hidden');
+  document.getElementById('dim-form-wrap').classList.remove('mob-hidden');
+  document.getElementById('dim-form-wrap').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setValCard(id,dimId,val,el){
+  setVal(id,dimId,val);
+  const card=document.getElementById(`kc-${id}`);
+  if(card) card.classList.toggle('filled',val.trim()!=='');
+  const dim=DIMS.find(d=>d.id===dimId);
+  const data=md(currentMonth);
+  const filled=dim.items.filter(i=>data[i.id]?.value).length;
+  const countEl=document.getElementById('dim-form-count');
+  if(countEl) countEl.textContent=`${filled}/${dim.items.length}`;
+  // scheduleAutoSave ถูกเรียกใน setVal แล้ว
+}
+
+function backToPicker(){
+  document.getElementById('dim-form-wrap').classList.add('mob-hidden');
+  document.getElementById('dim-form-wrap').style.display='none';
+  document.getElementById('dim-picker').classList.remove('mob-hidden');
+  document.getElementById('entry-footer').classList.remove('mob-hidden');
+  buildDimPicker();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// =====================================================
+// BUILD FORM (desktop accordion — unchanged)
+// =====================================================
+function buildForm(){
+  const form=document.getElementById('kpi-form');
+  if(!form) return;
+  form.innerHTML='';
+  const data=md(currentMonth);
+
+  DIMS.forEach(dim=>{
+    const filled=dim.items.filter(i=>data[i.id]?.value).length;
+    const sec=document.createElement('div');
+    sec.className='dim-section';
+    sec.innerHTML=`
+      <div class="dim-hdr" onclick="toggleDim(this)">
+        <div class="dim-hdr-left">
+          <span class="dim-dot ${dim.cls}"></span>
+          <span class="dim-name">${dim.name}</span>
+        </div>
+        <span style="display:flex;align-items:center;gap:10px">
+          <span class="dim-count" id="cnt-${dim.id}">${filled}/${dim.items.length}</span>
+          <span class="dim-chevron">▾</span>
+        </span>
+      </div>
+      <div class="dim-body" id="body-${dim.id}">
+        <table class="kpi-tbl">
+          <thead><tr>
+            <th>#</th><th>ตัวชี้วัด</th>
+            <th class="th-tgt" style="text-align:center">ค่าเป้าหมาย</th>
+            <th class="th-val">ผลการดำเนินงาน</th>
+            ${dim.id==='dg'?'<th class="th-owner">ผู้รับผิดชอบ</th>':''}
+            <th class="th-note">หมายเหตุ</th>
+          </tr></thead>
+          <tbody id="tb-${dim.id}"></tbody>
+        </table>
+      </div>`;
+    form.appendChild(sec);
+
+    const tb=sec.querySelector(`#tb-${dim.id}`);
+    dim.items.forEach(item=>{
+      const d=data[item.id]||{value:'',note:'',owner:''};
+      const isCrit = item.critical===true;
+      const critBadge = isCrit
+        ? `<span class="critical-badge">🚨 ห้ามเกิด</span>`
+        : '';
+      const tr=document.createElement('tr');
+      if(isCrit) tr.className='critical-row';
+      tr.innerHTML=`
+        <td class="n">${String(item.id).padStart(2,'0')}</td>
+        <td class="nm">${item.name} ${critBadge}${item.unit?`<small>${item.unit}</small>`:''}</td>
+        <td class="tgt">${item.target}</td>
+        <td class="inp">
+          <input type="text" class="ki ${d.value?'hv':''}" value="${d.value}" placeholder="—"
+            data-id="${item.id}" data-dim="${dim.id}"
+            onchange="setVal(${item.id},'${dim.id}',this.value)"
+            oninput="this.classList.toggle('hv',this.value.trim()!=='')">
+        </td>
+        ${dim.id==='dg'?`
+        <td class="owner">
+          <input type="text" class="ko ${d.owner?'hv':''}" value="${d.owner||''}" placeholder="ชื่อผู้รับผิดชอบ"
+            onchange="setOwner(${item.id},this.value)"
+            oninput="this.classList.toggle('hv',this.value.trim()!=='')">
+        </td>`:''}
+        <td class="nte">
+          <textarea class="kn" placeholder="บันทึกถ้ามีปัญหา"
+            onchange="setNote(${item.id},this.value)">${d.note}</textarea>
+        </td>`;
+      tb.appendChild(tr);
+    });
+  });
+  updateProgress();
+  buildDimPicker();
+}
+
+function toggleDim(hdr){
+  const body=hdr.nextElementSibling;
+  hdr.classList.toggle('collapsed');
+  body.classList.toggle('hidden');
+}
+
+function ensureEntry(mk,id){ if(!allData[mk]) allData[mk]={}; if(!allData[mk][id]) allData[mk][id]={value:'',note:'',owner:''}; }
+function setVal(id,dimId,val){
+  ensureEntry(currentMonth,id);
+  allData[currentMonth][id].value=val.trim();
+  updateDimCount(dimId);
+  updateProgress();
+  scheduleAutoSave();
+}
+function setNote(id,val){
+  ensureEntry(currentMonth,id);
+  allData[currentMonth][id].note=val.trim();
+  scheduleAutoSave();
+}
+function setOwner(id,val){
+  ensureEntry(currentMonth,id);
+  allData[currentMonth][id].owner=val.trim();
+  scheduleAutoSave();
+}
+function updateDimCount(dimId){
+  const dim=DIMS.find(d=>d.id===dimId);
+  const data=md(currentMonth);
+  const f=dim.items.filter(i=>data[i.id]?.value).length;
+  const el=document.getElementById(`cnt-${dimId}`);
+  if(el) el.textContent=`${f}/${dim.items.length}`;
+}
+function updateProgress(){
+  const data=md(currentMonth);
+  const total=ALL_ITEMS.length;
+  const filled=ALL_ITEMS.filter(i=>data[i.id]?.value).length;
+  const pct=total?Math.round(filled/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-stat').textContent=`กรอกแล้ว ${filled} / ${total} ตัวชี้วัด`;
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+// =====================================================
+// GOOGLE SHEETS INTEGRATION
+// =====================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzhjTvquJTHh7p8JGRuiUszJRkhJSCzDCLtoHu1GytieTx7Bhoe07TZrYqnrKBzKtXs/exec';
+
+let _autoSaveTimer = null;
+let _isSyncing = false;
+
+// เรียกทุกครั้งที่มีการเปลี่ยนแปลงข้อมูล — รอ 2 วิแล้วค่อยส่ง
+function scheduleAutoSave(){
+  clearTimeout(_autoSaveTimer);
+  setSyncStatus('pending');
+  _autoSaveTimer = setTimeout(()=>{ autoSaveToSheets(); }, 2000);
+}
+
+async function autoSaveToSheets(){
+  if(_isSyncing) return;
+  _isSyncing = true;
+  setSyncStatus('saving');
+  save(); // local ก่อน
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ month: currentMonth, data: md(currentMonth) })
+    });
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('error');
+  }
+  _isSyncing = false;
+}
+
+function setSyncStatus(state){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  const map = {
+    idle:    {icon:'☁️', text:'เชื่อมต่อ Sheets', cls:'sync-idle'},
+    pending: {icon:'✏️', text:'มีการเปลี่ยนแปลง...', cls:'sync-pending'},
+    saving:  {icon:'⏳', text:'กำลังบันทึก...', cls:'sync-saving'},
+    ok:      {icon:'✅', text:'บันทึกแล้ว', cls:'sync-ok'},
+    error:   {icon:'⚠️', text:'บันทึกไม่ได้ (เก็บในเครื่อง)', cls:'sync-error'},
+  };
+  const s = map[state]||map.idle;
+  el.innerHTML = `${s.icon} <span>${s.text}</span>`;
+  el.className = `sync-badge ${s.cls}`;
+}
+
+async function pushToSheets(month){
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ month, data: md(month) })
+    });
+    return true;
+  } catch(e){ return false; }
+}
+
+async function pullFromSheets(month){
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?month=${month}`, {mode:'cors'});
+    const json = await res.json();
+    if(json.status==='ok' && json.data){ allData[month]=json.data; save(); return true; }
+    return false;
+  } catch(e){ return false; }
+}
+
+function saveDraft(){
+  save();
+  showToast('💾 บันทึกร่างในเครื่องแล้ว');
+}
+
+async function saveMonth(){
+  const data=md(currentMonth);
+  const filled=ALL_ITEMS.filter(i=>data[i.id]?.value).length;
+  if(filled<ALL_ITEMS.length&&!confirm(`กรอกยังไม่ครบ (${filled}/${ALL_ITEMS.length})\nบันทึกที่มีอยู่ก่อนใช่หรือไม่?`)) return;
+  setSyncStatus('saving');
+  save();
+  const ok = await pushToSheets(currentMonth);
+  setSyncStatus(ok?'ok':'error');
+  showToast(ok ? `✅ ส่งข้อมูล ${getMonthLabelFull(currentMonth)} ไป Google Sheets แล้ว` : `💾 บันทึกในเครื่องแล้ว (Sheets ไม่ตอบสนอง)`);
+}
+
+async function loadFromSheets(){
+  const btn=document.getElementById('load-sheets-btn');
+  if(btn){btn.innerHTML='⏳ กำลังโหลด...';btn.disabled=true;}
+  const ok = await pullFromSheets(currentMonth);
+  if(btn){btn.innerHTML='☁️ โหลดจาก Sheets';btn.disabled=false;}
+  if(ok){ buildForm(); buildDimPicker(); showToast(`☁️ โหลดข้อมูล ${getMonthLabelFull(currentMonth)} จาก Sheets แล้ว`); }
+  else { showToast('⚠️ ไม่พบข้อมูลใน Sheets หรือเชื่อมต่อไม่ได้'); }
+}
+function showClearModal(){
+  // populate dim select
+  const sel=document.getElementById('clear-dim-sel');
+  sel.innerHTML='';
+  DIMS.forEach(dim=>{
+    const o=document.createElement('option');
+    o.value=dim.id; o.textContent=dim.name.replace(/มิติที่\s*\d+\s*—\s*/,'');
+    sel.appendChild(o);
+  });
+  document.getElementById('modal-month-lbl').textContent=getMonthLabelFull(currentMonth);
+  document.getElementById('clear-pin').value='';
+  document.getElementById('clear-confirm-btn').classList.remove('ready');
+  document.getElementById('clear-confirm-btn').disabled=true;
+  document.getElementById('clear-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('clear-pin').focus(),200);
+}
+function closeClearModal(){
+  document.getElementById('clear-modal').classList.remove('show');
+}
+function doClear(){
+  const scope=document.querySelector('input[name="clear-scope"]:checked').value;
+  if(scope==='all'){
+    allData[currentMonth]={};
+    save(); buildForm(); closeClearModal();
+    showToast('🗑️ ล้างข้อมูลทั้งเดือนแล้ว');
+  } else {
+    const dimId=document.getElementById('clear-dim-sel').value;
+    const dim=DIMS.find(d=>d.id===dimId);
+    if(!allData[currentMonth]) allData[currentMonth]={};
+    dim.items.forEach(item=>{ delete allData[currentMonth][item.id]; });
+    save(); buildForm(); closeClearModal();
+    showToast(`🗑️ ล้างข้อมูล "${dim.name.replace(/มิติที่\s*\d+\s*—\s*/,'')}" แล้ว`);
+  }
+}
+
+// =====================================================
+// REPORT PAGE
+// =====================================================
+let chart1=null, chart2=null;
+
+function populateKpiSel(){
+  const sel=document.getElementById('rpt-kpi');
+  sel.innerHTML='';
+  ALL_ITEMS.forEach(item=>{
+    const o=document.createElement('option');
+    o.value=item.id; o.textContent=`${String(item.id).padStart(2,'0')}. ${item.name}`;
+    sel.appendChild(o);
+  });
+}
+
+function renderReport(){
+  const year=parseInt(document.getElementById('rpt-year').value)-543;
+  const kpiId=parseInt(document.getElementById('rpt-kpi').value);
+  const kpiItem=ALL_ITEMS.find(i=>i.id===kpiId);
+  const months12=[];
+  for(let m=1;m<=12;m++) months12.push(`${year}-${String(m).padStart(2,'0')}`);
+
+  document.getElementById('rpt-period-lbl').textContent='ปี '+(year+543);
+  document.getElementById('c1sub').textContent=kpiItem.name;
+
+  // vals
+  const vals=months12.map(mk=>{ const v=md(mk)[kpiId]?.value; return v!==undefined&&v!==''?parseFloat(v):null; });
+  const nonNull=vals.filter(v=>v!==null);
+  const avg=nonNull.length?nonNull.reduce((a,b)=>a+b,0)/nonNull.length:0;
+  const mx=nonNull.length?Math.max(...nonNull):0;
+  const mn=nonNull.length?Math.min(...nonNull):0;
+  const lastVal=nonNull[nonNull.length-1]??0;
+
+  // summary cards
+  document.getElementById('rpt-sum').innerHTML=`
+    <div class="sum-card"><div class="sum-emo">📊</div><div class="sum-val">${avg.toFixed(1)}</div><div class="sum-lbl">ค่าเฉลี่ยทั้งปี</div></div>
+    <div class="sum-card"><div class="sum-emo">📈</div><div class="sum-val" style="color:var(--accent2)">${mx.toFixed(1)}</div><div class="sum-lbl">สูงสุดในปี</div></div>
+    <div class="sum-card"><div class="sum-emo">📉</div><div class="sum-val" style="color:var(--accent4)">${mn.toFixed(1)}</div><div class="sum-lbl">ต่ำสุดในปี</div></div>
+    <div class="sum-card"><div class="sum-emo">🗓️</div><div class="sum-val" style="color:var(--accent3)">${lastVal.toFixed(1)}</div><div class="sum-lbl">เดือนล่าสุด</div></div>`;
+
+  // chart 1 — trend
+  const ctx1=document.getElementById('chart1').getContext('2d');
+  if(chart1) chart1.destroy();
+  const targetNum=parseFloat(kpiItem.target.replace(/[^0-9.]/g,''));
+  chart1=new Chart(ctx1,{
+    type:'line',
+    data:{
+      labels:MONTHS_SHORT,
+      datasets:[
+        {label:'ผลการดำเนินงาน',data:vals,borderColor:'#0e7c5a',backgroundColor:'#0e7c5a18',tension:.35,fill:true,pointRadius:4,pointHoverRadius:6,borderWidth:2,spanGaps:true},
+        ...(isNaN(targetNum)?[]:[{label:'เป้าหมาย',data:months12.map(()=>targetNum),borderColor:'#0284c7',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,spanGaps:true}])
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#8b94b0',font:{family:'Sarabun',size:11}}}},
+      scales:{
+        x:{grid:{color:'#d1ede4'},ticks:{color:'#6a9e8a',font:{family:'Sarabun',size:11}}},
+        y:{grid:{color:'#d1ede4'},ticks:{color:'#6a9e8a',font:{family:'Sarabun',size:11}}}
+      }}
+  });
+
+  // chart 2 — last 6 months bar
+  const last6mk=months12.slice(-6);
+  document.getElementById('c2sub').textContent='6 เดือนล่าสุด · '+kpiItem.name.substring(0,30)+'…';
+  const ctx2=document.getElementById('chart2').getContext('2d');
+  if(chart2) chart2.destroy();
+  const barVals=last6mk.map(mk=>{ const v=md(mk)[kpiId]?.value; return v!==undefined&&v!==''?parseFloat(v):0; });
+  chart2=new Chart(ctx2,{
+    type:'bar',
+    data:{
+      labels:last6mk.map(mk=>getMonthLabel(mk)),
+      datasets:[{
+        label:'ผลการดำเนินงาน',
+        data:barVals,
+        backgroundColor:'#16a37488',borderColor:'#0e7c5a',borderWidth:1.5,borderRadius:5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'#d1ede4'},ticks:{color:'#2d6b55',font:{family:'Sarabun',size:11}}},
+        y:{grid:{color:'#d1ede4'},ticks:{color:'#6a9e8a',font:{family:'Sarabun',size:11}}}
+      }}
+  });
+
+  // trend table — all KPIs × 12 months
+  const tbl=document.getElementById('trend-tbl');
+  let hdr=`<thead><tr><th>ตัวชี้วัด</th>`;
+  months12.forEach(mk=>hdr+=`<th>${getMonthLabel(mk)}</th>`);
+  hdr+=`</tr></thead>`;
+
+  let body=`<tbody>`;
+  DIMS.forEach(dim=>{
+    body+=`<tr><td colspan="${13}" style="padding:9px 18px;background:var(--surface2);font-size:11px;font-weight:700;color:${dim.color};letter-spacing:.04em;border-bottom:1px solid var(--border)">${dim.name}</td></tr>`;
+    dim.items.forEach(item=>{
+      body+=`<tr><td><span class="nm-cell">${String(item.id).padStart(2,'0')}. ${item.name}<small>${item.target} ${item.unit}</small></span></td>`;
+      let prev=null;
+      months12.forEach(mk=>{
+        const raw=md(mk)[item.id]?.value;
+        const val=raw!==undefined&&raw!==''?parseFloat(raw):null;
+        let chip='';
+        if(val!==null&&prev!==null){
+          const diff=val-prev;
+          if(Math.abs(diff)<0.05) chip=`<span class="chip ceq">—</span>`;
+          else if(diff>0) chip=`<span class="chip cup">▲</span>`;
+          else chip=`<span class="chip cdn">▼</span>`;
+        }
+        body+=val!==null?`<td><span class="tv ok">${val}</span>${chip}</td>`:`<td><span class="tv no">—</span></td>`;
+        if(val!==null) prev=val;
+      });
+      body+=`</tr>`;
+    });
+  });
+  body+=`</tbody>`;
+  tbl.innerHTML=hdr+body;
+
+  // 3-month compare table
+  render3MonthCompare(year);
+}
+
+// =====================================================
+// 3-MONTH COMPARE TABLE
+// =====================================================
+function getPrevMonthKey(mk, n){
+  // mk = "2025-06", n months back
+  const [y,m] = mk.split('-').map(Number);
+  let nm = m - n;
+  let ny = y;
+  while(nm <= 0){ nm += 12; ny--; }
+  return `${ny}-${String(nm).padStart(2,'0')}`;
+}
+
+function checkTarget(val, targetStr){
+  // returns 'pass', 'fail', or 'na'
+  if(val===null) return 'na';
+  const t = targetStr.trim();
+  if(t==='0') return val===0 ? 'pass' : 'fail';
+  if(t.startsWith('≥')){ const n=parseFloat(t.slice(1)); return val>=n?'pass':'fail'; }
+  if(t.startsWith('≤')){ const n=parseFloat(t.slice(1)); return val<=n?'pass':'fail'; }
+  if(t.includes('–') || t.includes('-')){
+    const parts = t.split(/[–-]/);
+    const lo=parseFloat(parts[0]), hi=parseFloat(parts[1]);
+    return (val>=lo&&val<=hi)?'pass':'fail';
+  }
+  if(t==='100') return val>=100?'pass':'fail';
+  if(t==='บันทึก') return val!==null?'pass':'na';
+  return 'na';
+}
+
+function render3MonthCompare(year){
+  // find the 3 most-recent months that have any data, within the selected year
+  const months12=[];
+  for(let m=12;m>=1;m--) months12.push(`${year}-${String(m).padStart(2,'0')}`);
+
+  // pick last 3 months with data OR just last 3 calendar months of year
+  const last3 = [];
+  for(const mk of months12){
+    const hasData = ALL_ITEMS.some(i=>{const v=md(mk)[i.id]?.value; return v!==undefined&&v!=='';});
+    if(hasData) last3.push(mk);
+    if(last3.length===3) break;
+  }
+  // if not enough months with data, pad with last 3 calendar months
+  const cal3 = months12.slice(0,3);
+  while(last3.length<3) last3.push(cal3[last3.length]);
+  last3.reverse(); // oldest → newest
+
+  // update subtitle
+  document.getElementById('cmp-period-lbl').textContent=
+    `${getMonthLabel(last3[0])} → ${getMonthLabel(last3[1])} → ${getMonthLabel(last3[2])} (คอลัมน์ขวาสุด = ล่าสุด)`;
+
+  const tbl = document.getElementById('cmp-tbl');
+  const [m0,m1,m2] = last3; // oldest, middle, current
+
+  // header
+  let hdr = `<thead><tr>
+    <th style="text-align:left;padding-left:18px">ตัวชี้วัด</th>
+    <th style="width:80px;text-align:center">เป้าหมาย</th>
+    <th style="width:130px">${getMonthLabel(m0)}</th>
+    <th style="width:130px">${getMonthLabel(m1)}</th>
+    <th class="th-cur" style="width:140px">📌 ${getMonthLabel(m2)} (ล่าสุด)</th>
+    <th style="width:80px;text-align:center">แนวโน้ม</th>
+  </tr></thead>`;
+
+  let body = `<tbody>`;
+  DIMS.forEach(dim=>{
+    body += `<tr class="cmp-dim-row"><td colspan="6" style="color:${dim.color}">${dim.name}</td></tr>`;
+    dim.items.forEach(item=>{
+      const getRaw = mk => { const v=md(mk)[item.id]?.value; return v!==undefined&&v!==''?parseFloat(v):null; };
+      const v0=getRaw(m0), v1=getRaw(m1), v2=getRaw(m2);
+
+      const fmtCell = (val, mk, isCurrent) => {
+        if(val===null) return `<td${isCurrent?' class="td-cur"':''}><span class="cmp-val none">—</span></td>`;
+        const pass = checkTarget(val, item.target);
+        const cls = pass==='pass'?'pass':pass==='fail'?'fail':'warn';
+        const badge = pass==='pass'?'ok':pass==='fail'?'ng':'na';
+        return `<td${isCurrent?' class="td-cur"':''}>
+          <span class="pass-badge ${badge}"></span>
+          <span class="cmp-val ${cls}">${val}</span>
+          ${item.unit?`<span style="font-size:10px;color:var(--text3);margin-left:2px">${item.unit}</span>`:''}
+        </td>`;
+      };
+
+      // trend: compare m1→m2
+      let trendHtml = '<td style="text-align:center">';
+      if(v1!==null && v2!==null){
+        const diff = v2 - v1;
+        const pct = v1!==0 ? ((diff/Math.abs(v1))*100).toFixed(1) : '—';
+        if(Math.abs(diff)<0.05){
+          trendHtml+=`<span class="delta eq">→ คงที่</span>`;
+        } else if(diff>0){
+          trendHtml+=`<span class="delta up">▲ +${Math.abs(diff).toFixed(1)}</span>`;
+        } else {
+          trendHtml+=`<span class="delta dn">▼ ${diff.toFixed(1)}</span>`;
+        }
+      } else { trendHtml+=`<span style="font-size:10px;color:var(--text3)">—</span>`; }
+      trendHtml+='</td>';
+
+      body+=`<tr>
+        <td><span class="cmp-name">${String(item.id).padStart(2,'0')}. ${item.name}</span></td>
+        <td style="text-align:center"><span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">${item.target}</span></td>
+        ${fmtCell(v0,m0,false)}
+        ${fmtCell(v1,m1,false)}
+        ${fmtCell(v2,m2,true)}
+        ${trendHtml}
+      </tr>`;
+    });
+  });
+  body+=`</tbody>`;
+  tbl.innerHTML=hdr+body;
+}
+
+// =====================================================
+// FISCAL YEAR SUMMARY  ปีงบประมาณ = ต.ค.(ปีก่อน) – ก.ย.(ปีนั้น)
+// เช่น ปีงบ 2568 = ต.ค.2567 (2024-10) – ก.ย.2568 (2025-09)
+// =====================================================
+function getFiscalMonthKeys(fyBE){
+  // fyBE เช่น 2568
+  const startCE = fyBE - 543 - 1; // ต.ค. ปีก่อน CE
+  const endCE   = fyBE - 543;     // ก.ย. ปีนั้น CE
+  const keys=[];
+  // ต.ค.(10) ถึง ธ.ค.(12) ของปีก่อน
+  for(let m=10;m<=12;m++) keys.push(`${startCE}-${String(m).padStart(2,'0')}`);
+  // ม.ค.(1) ถึง ก.ย.(9) ของปีนั้น
+  for(let m=1;m<=9;m++) keys.push(`${endCE}-${String(m).padStart(2,'0')}`);
+  return keys; // 12 keys
+}
+
+function renderFiscal(){
+  const fyBE = parseInt(document.getElementById('fy-year').value);
+  const months = getFiscalMonthKeys(fyBE);
+  const fyLabel = `ปีงบประมาณ ${fyBE} (ต.ค.${fyBE-1} – ก.ย.${fyBE})`;
+
+  document.getElementById('print-fy-badge').textContent = fyLabel;
+  document.getElementById('fy-tbl-year').textContent = fyBE;
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+
+  // ---- helpers ----
+  const getRaw=(mk,id)=>{ const v=md(mk)[id]?.value; return (v!==undefined&&v!=='')?parseFloat(v):null; };
+  const passCheck=(val,tgt)=>checkTarget(val,tgt);
+
+  // ---- per-item stats (avg, pass count, filled count) ----
+  const itemStats={};
+  ALL_ITEMS.forEach(item=>{
+    const vals=months.map(mk=>getRaw(mk,item.id)).filter(v=>v!==null);
+    const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    const passMonths=months.filter(mk=>{ const v=getRaw(mk,item.id); return v!==null&&passCheck(v,item.target)==='pass'; }).length;
+    itemStats[item.id]={avg,vals,filled:vals.length,passMonths};
+  });
+
+  // ---- overall summary cards ----
+  const totalItems=ALL_ITEMS.length;
+  const passItems=ALL_ITEMS.filter(i=>{ const s=itemStats[i.id]; return s.avg!==null&&passCheck(s.avg,i.target)==='pass'; }).length;
+  const filledItems=ALL_ITEMS.filter(i=>itemStats[i.id].filled>0).length;
+  const avgFill=ALL_ITEMS.reduce((s,i)=>s+itemStats[i.id].filled,0);
+  const fillPct=Math.round(avgFill/(totalItems*12)*100);
+
+  document.getElementById('fy-sum-grid').innerHTML=`
+    <div class="fy-sum-card"><div class="sum-emo">✅</div><div class="sv" style="color:var(--accent2)">${passItems}<span style="font-size:14px;color:var(--text3)">/${totalItems}</span></div><div class="sl">ตัวชี้วัดที่ผ่านเป้าหมาย (ค่าเฉลี่ยปี)</div></div>
+    <div class="fy-sum-card"><div class="sum-emo">❌</div><div class="sv" style="color:var(--accent4)">${totalItems-passItems}<span style="font-size:14px;color:var(--text3)">/${totalItems}</span></div><div class="sl">ตัวชี้วัดที่ไม่ผ่านเป้าหมาย</div></div>
+    <div class="fy-sum-card"><div class="sum-emo">📊</div><div class="sv" style="color:var(--accent3)">${Math.round(passItems/totalItems*100)}%</div><div class="sl">อัตราการผ่านเป้าหมายโดยรวม</div></div>
+    <div class="fy-sum-card"><div class="sum-emo">📝</div><div class="sv" style="color:var(--accent)">${fillPct}%</div><div class="sl">ความครบถ้วนของข้อมูลตลอดปี</div></div>`;
+
+  // ---- dim overview bar chart ----
+  let ovHtml=`<div class="fy-ov-title">ภาพรวมการผ่านเป้าหมายแยกตามมิติ</div><div class="fy-ov-dims">`;
+  DIMS.forEach(dim=>{
+    const total=dim.items.length;
+    const pass=dim.items.filter(i=>{ const s=itemStats[i.id]; return s.avg!==null&&passCheck(s.avg,i.target)==='pass'; }).length;
+    const pct=Math.round(pass/total*100);
+    const barColor=pct>=80?'var(--accent2)':pct>=60?'var(--accent3)':'var(--accent4)';
+    ovHtml+=`<div class="fy-ov-row">
+      <div class="fy-ov-label" style="color:${dim.color};font-size:11px;font-weight:600">${dim.name.replace(/มิติที่\s*\d+\s*—\s*/,'')}</div>
+      <div class="fy-ov-bar-bg"><div class="fy-ov-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      <div class="fy-ov-stat">${pass}/${total} ตัว</div>
+      <div class="fy-ov-pct" style="color:${barColor}">${pct}%</div>
+    </div>`;
+  });
+  ovHtml+=`</div>`;
+  document.getElementById('fy-overview').innerHTML=ovHtml;
+
+  // ---- main table ----
+  const MO_LABELS = months.map(mk=>getMonthLabel(mk));
+  const TOTAL_COLS = 3 + 12 + 3 + 1; // #, name, target, 12mo, avg, result, filled, owner
+  let hdr=`<thead><tr>
+    <th>#</th>
+    <th style="min-width:220px">ตัวชี้วัด</th>
+    <th style="width:70px">เป้าหมาย</th>
+    ${MO_LABELS.map(l=>`<th style="width:62px">${l}</th>`).join('')}
+    <th style="width:70px;background:#065f46;color:#fff">ค่าเฉลี่ย</th>
+    <th style="width:56px;background:#065f46;color:#fff">ผล</th>
+    <th style="width:56px">กรอก</th>
+    <th style="width:130px;background:#78350f;color:#fff">ผู้รับผิดชอบ</th>
+  </tr></thead>`;
+
+  let body=`<tbody>`;
+  DIMS.forEach(dim=>{
+    body+=`<tr class="fy-dim-row"><td colspan="19" style="color:${dim.color}">${dim.name}</td></tr>`;
+    dim.items.forEach(item=>{
+      const s=itemStats[item.id];
+      const pass=s.avg!==null?passCheck(s.avg,item.target):'na';
+      const passIcon=pass==='pass'?'<span style="color:#22c55e">✔</span>':pass==='fail'?'<span style="color:#ef4444">✘</span>':'<span style="color:#64748b">—</span>';
+      const avgCls=pass==='pass'?'ok':pass==='fail'?'ng':'na';
+      const avgDisp=s.avg!==null?s.avg.toFixed(1):'—';
+
+      // get owner from latest month that has data
+      let ownerVal='';
+      if(dim.id==='dg'){
+        for(let mi=months.length-1;mi>=0;mi--){
+          const o=allData[months[mi]]?.[item.id]?.owner;
+          if(o){ ownerVal=o; break; }
+        }
+      }
+
+      const critMark = item.critical ? `<span style="font-size:11px">🚨</span> ` : '';
+      body+=`<tr${item.critical?' class="critical-row"':''}>
+        <td>${String(item.id).padStart(2,'0')}</td>
+        <td style="text-align:left;font-size:11px;font-weight:500">${critMark}${item.name}</td>
+        <td style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace">${item.target}</td>`;
+
+      months.forEach(mk=>{
+        const v=getRaw(mk,item.id);
+        if(v===null){ body+=`<td><span class="mo-empty">—</span></td>`; return; }
+        const p=passCheck(v,item.target);
+        const cls=p==='pass'?'ok':p==='fail'?'ng':'na';
+        body+=`<td><span class="fy-val ${cls}">${v}</span></td>`;
+      });
+
+      body+=`<td style="background:#e6f4ef"><span class="fy-avg ${avgCls}">${avgDisp}</span></td>
+        <td style="background:#e6f4ef" class="fy-pass-icon">${passIcon}</td>
+        <td><span class="fy-filled">${s.filled}/12</span></td>
+        <td style="background:#fffbeb;font-size:11px;color:#92400e;font-weight:${ownerVal?'600':'400'}">${ownerVal||'<span style="color:#d1d5db">—</span>'}</td>
+      </tr>`;
+    });
+  });
+  body+=`</tbody>`;
+  document.getElementById('fy-tbl').innerHTML=hdr+body;
+}
+
+// =====================================================
+// NAV + MONTH
+// =====================================================
+function showPage(p){
+  ['entry','report','fiscal'].forEach(id=>{
+    document.getElementById('page-'+id).classList.toggle('active',p===id);
+    const nb=document.getElementById('nav-'+id);
+    if(nb) nb.classList.toggle('active',p===id);
+  });
+  if(p==='report') renderReport();
+  if(p==='fiscal') renderFiscal();
+}
+function getMonthLabel(mk){
+  const[y,m]=mk.split('-');
+  return MONTHS_SHORT[parseInt(m)-1]+' '+(parseInt(y)+543);
+}
+function getMonthLabelFull(mk){
+  const[y,m]=mk.split('-');
+  return MONTHS_FULL[parseInt(m)-1]+' '+(parseInt(y)+543);
+}
+function updateMonthDisplay(){
+  const lbl=getMonthLabelFull(currentMonth);
+  document.getElementById('month-display').textContent=lbl;
+  document.getElementById('footer-month').textContent=lbl;
+}
+function onMonthChange(){
+  const m=document.getElementById('month-sel-m').value;
+  const y=document.getElementById('month-sel-y').value;
+  currentMonth=`${y}-${m}`;
+  updateMonthDisplay();
+  buildForm();
+  buildDimPicker();
+  // โหลดข้อมูลเดือนใหม่จาก Sheets อัตโนมัติ
+  setSyncStatus('saving');
+  pullFromSheets(currentMonth).then(ok=>{
+    if(ok){ buildForm(); buildDimPicker(); setSyncStatus('ok'); }
+    else { setSyncStatus('idle'); }
+  });
+  if(document.getElementById('page-report').classList.contains('active')) renderReport();
+}
+
+// =====================================================
+// TOAST
+// =====================================================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// =====================================================
+// INIT — รอ DOM โหลดเสร็จก่อนทุกอย่าง
+// =====================================================
+document.addEventListener('DOMContentLoaded', function(){
+
+  // ตั้งเดือน/ปีจากวันจริง
+  (function initDateSelects(){
+    const now = new Date();
+    const realCE = now.getFullYear();
+    const realM  = now.getMonth() + 1;
+    const ySel = document.getElementById('month-sel-y');
+    ySel.innerHTML = '';
+    for(let ce = realCE - 2; ce <= realCE + 1; ce++){
+      const opt = document.createElement('option');
+      opt.value = ce;
+      opt.textContent = ce + 543;
+      if(ce === realCE) opt.selected = true;
+      ySel.appendChild(opt);
+    }
+    document.getElementById('month-sel-m').value = String(realM).padStart(2,'0');
+  })();
+
+  // ล้าง demo เก่าครั้งเดียว
+  if(!localStorage.getItem('or-no-cleared-v1')){
+    localStorage.removeItem('or-no-v1');
+    localStorage.setItem('or-no-cleared-v1','1');
+  }
+
+  load();
+  populateKpiSel();
+  const _m = document.getElementById('month-sel-m').value;
+  const _y = document.getElementById('month-sel-y').value;
+  currentMonth = `${_y}-${_m}`;
+  buildForm();
+  buildDimPicker();
+  updateMonthDisplay();
+  document.getElementById('dim-form-wrap').style.display = 'none';
+  setSyncStatus('idle');
+
+  // โหลดข้อมูลจาก Sheets อัตโนมัติทุกครั้งที่เปิดหน้า
+  setSyncStatus('saving');
+  pullFromSheets(currentMonth).then(ok => {
+    if(ok){
+      buildForm();
+      buildDimPicker();
+      setSyncStatus('ok');
+      showToast('☁️ โหลดข้อมูลล่าสุดจาก Google Sheets แล้ว');
+    } else {
+      setSyncStatus('idle');
+    }
+  });
+
+});
+</script>
+</body>
+</html>
