@@ -1226,6 +1226,7 @@ function buildForm(){
     dim.items.forEach(item=>{
       const d=data[item.id]||{value:'',note:'',owner:''};
       const isCrit = item.critical===true;
+      const unitText = item.unit || '';
       const critBadge = isCrit
         ? `<span class="critical-badge">🚨 ห้ามเกิด</span>`
         : '';
@@ -1234,7 +1235,7 @@ function buildForm(){
       tr.innerHTML=`
         <td class="n">${String(item.id).padStart(2,'0')}</td>
         <td class="nm">${item.name} ${critBadge}</td>
-        <td class="tgt">${item.target}${item.unit?' <span style="font-size:11px;color:var(--text2);font-weight:500">${item.unit}</span>':''}</td>
+        <td class="tgt">${item.target}${unitText?' <span style="font-size:11px;color:var(--text2);font-weight:500">'+unitText+'</span>':''}</td>
         <td class="inp">
           <input type="text" class="ki ${d.value?'hv':''}" value="${d.value}" placeholder="—"
             data-id="${item.id}" data-dim="${dim.id}"
