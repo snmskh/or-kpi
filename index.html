@@ -1576,39 +1576,36 @@ function checkTarget(val, targetStr){
 }
 
 function render3MonthCompare(year){
-  // ใช้เดือนปัจจุบันเป็นฐาน (ขวาสุด) เสมอ
+  // ใช้เดือนปัจจุบันจริงเป็นฐาน (ขวาสุด) เสมอ ไม่สนใจ year
   const now = new Date();
   const curMK = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const m2 = curMK;
-  const m1 = getPrevMonthKey(curMK, 1);
-  const m0 = getPrevMonthKey(curMK, 2);
-  const last3 = [m0, m1, m2]; // oldest → newest
+  const mk2 = curMK;                      // เดือนปัจจุบัน (ขวาสุด)
+  const mk1 = getPrevMonthKey(curMK, 1);  // เดือนก่อน
+  const mk0 = getPrevMonthKey(curMK, 2);  // 2 เดือนก่อน
 
-  // update subtitle
   document.getElementById('cmp-period-lbl').textContent=
-    `${getMonthLabel(last3[0])} → ${getMonthLabel(last3[1])} → ${getMonthLabel(last3[2])} (คอลัมน์ขวาสุด = ล่าสุด)`;
+    `${getMonthLabel(mk0)} → ${getMonthLabel(mk1)} → ${getMonthLabel(mk2)} (คอลัมน์ขวาสุด = เดือนปัจจุบัน)`;
 
   const tbl = document.getElementById('cmp-tbl');
-  const [m0,m1,m2] = last3; // oldest, middle, current
 
   // header
   let hdr = `<thead><tr>
     <th style="text-align:left;padding-left:18px">ตัวชี้วัด</th>
-    <th style="width:80px;text-align:center">เป้าหมาย</th>
-    <th style="width:130px">${getMonthLabel(m0)}</th>
-    <th style="width:130px">${getMonthLabel(m1)}</th>
-    <th class="th-cur" style="width:140px">📌 ${getMonthLabel(m2)} (ล่าสุด)</th>
-    <th style="width:80px;text-align:center">แนวโน้ม</th>
+    <th style="width:90px;text-align:center">เป้าหมาย</th>
+    <th style="width:130px">${getMonthLabel(mk0)}</th>
+    <th style="width:130px">${getMonthLabel(mk1)}</th>
+    <th class="th-cur" style="width:150px">📌 ${getMonthLabel(mk2)} (ปัจจุบัน)</th>
+    <th style="width:90px;text-align:center">แนวโน้ม</th>
   </tr></thead>`;
 
   let body = `<tbody>`;
   DIMS.forEach(dim=>{
-    body += `<tr class="cmp-dim-row"><td colspan="6" style="color:${dim.color}">${dim.name}</td></tr>`;
+    body += `<tr class="cmp-dim-row"><td colspan="6" style="color:${dim.color};background:${dim.color}15;border-left:4px solid ${dim.color}">${dim.name}</td></tr>`;
     dim.items.forEach(item=>{
       const getRaw = mk => { const v=md(mk)[item.id]?.value; return v!==undefined&&v!==''?parseFloat(v):null; };
-      const v0=getRaw(m0), v1=getRaw(m1), v2=getRaw(m2);
+      const v0=getRaw(mk0), v1=getRaw(mk1), v2=getRaw(mk2);
 
-      const fmtCell = (val, mk, isCurrent) => {
+      const fmtCell = (val, isCurrent) => {
         if(val===null) return `<td${isCurrent?' class="td-cur"':''}><span class="cmp-val none">—</span></td>`;
         const pass = checkTarget(val, item.target);
         const cls = pass==='pass'?'pass':pass==='fail'?'fail':'warn';
@@ -1616,31 +1613,26 @@ function render3MonthCompare(year){
         return `<td${isCurrent?' class="td-cur"':''}>
           <span class="pass-badge ${badge}"></span>
           <span class="cmp-val ${cls}">${val}</span>
-          ${item.unit?`<span style="font-size:10px;color:var(--text3);margin-left:2px">${item.unit}</span>`:''}
+          ${item.unit?`<span style="font-size:11px;color:var(--text3);margin-left:2px">${item.unit}</span>`:''}
         </td>`;
       };
 
-      // trend: compare m1→m2
+      // แนวโน้ม mk1 → mk2
       let trendHtml = '<td style="text-align:center">';
       if(v1!==null && v2!==null){
         const diff = v2 - v1;
-        const pct = v1!==0 ? ((diff/Math.abs(v1))*100).toFixed(1) : '—';
-        if(Math.abs(diff)<0.05){
-          trendHtml+=`<span class="delta eq">→ คงที่</span>`;
-        } else if(diff>0){
-          trendHtml+=`<span class="delta up">▲ +${Math.abs(diff).toFixed(1)}</span>`;
-        } else {
-          trendHtml+=`<span class="delta dn">▼ ${diff.toFixed(1)}</span>`;
-        }
-      } else { trendHtml+=`<span style="font-size:10px;color:var(--text3)">—</span>`; }
+        if(Math.abs(diff)<0.05) trendHtml+=`<span class="delta eq">→ คงที่</span>`;
+        else if(diff>0) trendHtml+=`<span class="delta up">▲ +${Math.abs(diff).toFixed(1)}</span>`;
+        else trendHtml+=`<span class="delta dn">▼ ${diff.toFixed(1)}</span>`;
+      } else { trendHtml+=`<span style="font-size:11px;color:var(--text3)">—</span>`; }
       trendHtml+='</td>';
 
       body+=`<tr>
-        <td><span class="cmp-name">${String(item.id).padStart(2,'0')}. ${item.name}</span></td>
-        <td style="text-align:center"><span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">${item.target}</span></td>
-        ${fmtCell(v0,m0,false)}
-        ${fmtCell(v1,m1,false)}
-        ${fmtCell(v2,m2,true)}
+        <td style="padding:10px 14px 10px 18px"><span class="cmp-name">${String(item.id).padStart(2,'0')}. ${item.name}</span></td>
+        <td style="text-align:center"><span style="font-size:12px;color:var(--text2);font-family:'IBM Plex Mono',monospace;font-weight:600">${item.target} ${item.unit}</span></td>
+        ${fmtCell(v0,false)}
+        ${fmtCell(v1,false)}
+        ${fmtCell(v2,true)}
         ${trendHtml}
       </tr>`;
     });
