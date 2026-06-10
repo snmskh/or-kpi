@@ -755,6 +755,9 @@ td.owner{padding:7px 5px 7px 3px;}
       <button class="btn btn-ghost" onclick="backToPicker()">← กลับเลือกมิติ</button>
       <button class="btn btn-ghost" onclick="loadFromSheets()">☁️ โหลดจาก Sheets</button>
       <button class="btn btn-success" onclick="saveMonth()">✅ ส่งข้อมูลไป Google Sheets</button>
+      <div style="width:100%;text-align:right;margin-top:4px">
+        <span onclick="showClearModal()" style="font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline;opacity:.5;user-select:none">ล้างข้อมูล</span>
+      </div>
     </div>
   </div>
 
@@ -762,10 +765,12 @@ td.owner{padding:7px 5px 7px 3px;}
   <div class="footer" id="entry-footer">
     <div class="footer-info">เดือน <strong id="footer-month">มิถุนายน 2568</strong></div>
     <div class="fa">
-      <button class="btn btn-danger" onclick="showClearModal()">🗑️ ล้างข้อมูล</button>
       <button class="btn btn-ghost" id="load-sheets-btn" onclick="loadFromSheets()">☁️ โหลดจาก Sheets</button>
       <button class="btn btn-ghost" onclick="saveDraft()">💾 บันทึกร่าง</button>
       <button class="btn btn-success" onclick="saveMonth()">✅ ส่งข้อมูลไป Google Sheets</button>
+    </div>
+    <div style="width:100%;text-align:right;margin-top:6px">
+      <span onclick="showClearModal()" style="font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline;opacity:.5;user-select:none" title="ล้างข้อมูล">ล้างข้อมูล</span>
     </div>
   </div>
 
