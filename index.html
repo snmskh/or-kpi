@@ -1112,7 +1112,7 @@ function openDim(dimId){
 
   dim.items.forEach(item=>{
     const d=data[item.id]||{value:'',note:'',owner:''};
-    const isOwner=dim.id==='dg';
+    const ownerVal = d.owner || getPrevMonthOwner(item.id);
     const isCrit=item.critical===true;
     const card=document.createElement('div');
     card.className=`kpi-card ${d.value?'filled':''} ${isCrit?'critical':''}`;
@@ -1141,14 +1141,13 @@ function openDim(dimId){
             onchange="setValCard(${item.id},'${dim.id}',this.value,this)"
             oninput="this.classList.toggle('hv',this.value.trim()!=='')">
         </div>
-        ${isOwner?`
         <div class="kpi-field">
           <div class="kpi-field-label owner-lbl">ผู้รับผิดชอบ</div>
-          <input type="text" class="ko ${d.owner?'hv':''}"
-            value="${d.owner||''}" placeholder="ชื่อผู้รับผิดชอบ"
+          <input type="text" class="ko ${ownerVal?'hv':''}"
+            value="${ownerVal}" placeholder="ชื่อผู้รับผิดชอบ"
             onchange="setOwner(${item.id},this.value)"
             oninput="this.classList.toggle('hv',this.value.trim()!=='')">
-        </div>`:''}
+        </div>
         <div class="kpi-field kpi-field-note">
           <div class="kpi-field-label">${isCrit?'⚠️ รายละเอียด/การจัดการ':'หมายเหตุ (ถ้ามีปัญหา)'}</div>
           <textarea class="kn" style="height:38px;${isCrit?'border-color:#fca5a5;':''}"
@@ -1188,6 +1187,18 @@ function backToPicker(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ดึง owner จากเดือนก่อนหน้าถ้าเดือนนี้ยังไม่มี
+function getPrevMonthOwner(itemId){
+  const [y, m] = currentMonth.split('-').map(Number);
+  // ย้อนหลังสูงสุด 6 เดือน
+  for(let i=1; i<=6; i++){
+    const mk = getPrevMonthKey(currentMonth, i);
+    const o = allData[mk]?.[itemId]?.owner;
+    if(o && o.trim()) return o.trim();
+  }
+  return '';
+}
+
 // =====================================================
 // BUILD FORM (desktop accordion — unchanged)
 // =====================================================
@@ -1219,7 +1230,7 @@ function buildForm(){
             <th>#</th><th>ตัวชี้วัด</th>
             <th class="th-tgt" style="text-align:center">ค่าเป้าหมาย</th>
             <th class="th-val">ผลการดำเนินงาน</th>
-            ${dim.id==='dg'?'<th class="th-owner">ผู้รับผิดชอบ</th>':''}
+            <th class="th-owner">ผู้รับผิดชอบ</th>
             <th class="th-note">หมายเหตุ</th>
           </tr></thead>
           <tbody id="tb-${dim.id}"></tbody>
@@ -1230,11 +1241,11 @@ function buildForm(){
     const tb=sec.querySelector(`#tb-${dim.id}`);
     dim.items.forEach(item=>{
       const d=data[item.id]||{value:'',note:'',owner:''};
+      // auto-fill owner จากเดือนก่อนถ้าเดือนนี้ยังไม่มี
+      const ownerVal = d.owner || getPrevMonthOwner(item.id);
       const isCrit = item.critical===true;
       const unitText = item.unit || '';
-      const critBadge = isCrit
-        ? `<span class="critical-badge">🚨 ห้ามเกิด</span>`
-        : '';
+      const critBadge = isCrit ? `<span class="critical-badge">🚨 ห้ามเกิด</span>` : '';
       const tr=document.createElement('tr');
       if(isCrit) tr.className='critical-row';
       tr.innerHTML=`
@@ -1247,12 +1258,12 @@ function buildForm(){
             onchange="setVal(${item.id},'${dim.id}',this.value)"
             oninput="this.classList.toggle('hv',this.value.trim()!=='')">
         </td>
-        ${dim.id==='dg'?`
         <td class="owner">
-          <input type="text" class="ko ${d.owner?'hv':''}" value="${d.owner||''}" placeholder="ชื่อผู้รับผิดชอบ"
+          <input type="text" class="ko ${ownerVal?'hv':''}" value="${ownerVal}"
+            placeholder="ผู้รับผิดชอบ"
             onchange="setOwner(${item.id},this.value)"
             oninput="this.classList.toggle('hv',this.value.trim()!=='')">
-        </td>`:''}
+        </td>
         <td class="nte">
           <textarea class="kn" placeholder="บันทึกถ้ามีปัญหา"
             onchange="setNote(${item.id},this.value)">${d.note}</textarea>
