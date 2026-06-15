@@ -1245,7 +1245,7 @@ function buildForm(){
       const ownerVal = d.owner || getPrevMonthOwner(item.id);
       const isCrit = item.critical===true;
       const unitText = item.unit || '';
-      const critBadge = isCrit ? `<span class="critical-badge">🚨 ห้ามเกิด</span>` : '';
+      const critBadge = isCrit ? `<span class="critical-badge">🚨</span>` : '';
       const tr=document.createElement('tr');
       if(isCrit) tr.className='critical-row';
       tr.innerHTML=`
